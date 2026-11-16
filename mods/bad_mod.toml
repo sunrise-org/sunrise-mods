@@ -1,0 +1,14 @@
+id = "bad_mod"
+kind = "mod"
+name = "Bad"
+summary = "x"
+owners = ["someone"]
+license = "MIT"
+source = "https://github.com/a/b"
+
+[[versions]]
+version = "0.1.0"
+published = "2026-11-16"
+game = "26.3"
+file = "bad_mod-0.1.0.smod"
+sha256 = "0000000000000000000000000000000000000000000000000000000000000000"
