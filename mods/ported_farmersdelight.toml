@@ -1,0 +1,45 @@
+id = "ported_farmersdelight"
+kind = "native-mod"
+name = "Farmer's Delight (Sunrise port)"
+summary = "Farmer's Delight for Sunrise: cooking pot, stove, skillet, cutting board and knives, new crops, feasts, meals and drinks."
+description = """
+An unofficial port of **Farmer's Delight** (vectorwing, MIT), following Farmer's Delight Refabricated 3.6.30 for Minecraft 26.3, to Sunrise's native mod API. It is a rewrite in Rust that keeps the original's behaviour, quirks included, not a copy of the Java mod.
+
+## What it adds
+
+- **Cooking:** the cooking pot with its recipe book, the stove, the skillet, and the cutting board with six knives (flint, copper, iron, golden, diamond, netherite).
+- **Farming:** cabbages, onions, tomatoes and rice; rich soil and organic compost; mushroom colonies; wild crops in the world; village farms and chest loot.
+- **Food:** every meal, drink, pie, feast and pet food, with the Nourishment and Comfort effects and their HUD overlays and tooltips.
+- **Blocks:** crates and bags, baskets, cabinets, canvas signs, tatami, the safety net, rotten tomatoes.
+- **Also:** the Backstabbing enchantment, advancements, config files and all 44 of Farmer's Delight's translations.
+
+## Add-ons
+
+Corn Delight (`ported_corn_delight`) and More Delight (`ported_moredelight`) are ported too. Each needs this exact version. Add-on authors can use the public Rust `api` module (feasts, wild crops, crop growth, config); see the README.
+
+## Multiplayer
+
+Every player and the server need the same build of this mod. Clients without it are refused.
+
+## Known differences
+
+A few things the engine can't express yet differ from Farmer's Delight. The item-default config keys have no effect. The village config keys can't switch off the village additions. In single player, clicking a recipe in the pot's recipe book doesn't place it (it works on servers). `enableVanillaCropCrates = false` doesn't remove the vanilla crop crate recipes. On page 2 of the creative inventory, the hovered tab's name can overlap a page-1 tab's name (sunrise-org/sunrise#2646). The full list is in the README.
+"""
+authors = ["vectorwing", "MehVahdJukaar", "cassiancc", "play-go"]
+owners = ["play-go"]
+license = "MIT"
+source = "https://github.com/play-go/farmersdelight-sunrise"
+icon = "icons/ported_farmersdelight.png"
+categories = ["food", "decoration", "worldgen"]
+tags = ["farmers-delight", "cooking", "crops", "farming", "knives", "feasts", "delight"]
+
+[[versions]]
+version = "3.6.30-sunrise.1"
+published = "2026-11-18"
+game = "26.3"
+file = "ported_farmersdelight-3.6.30-sunrise.1.smod"
+sha256 = "b4a8e2b6b0413aab4b4208e3cdb67288b35f99929f5d345e2ce4166d2d7190f6"
+changelog = """
+- First Sunrise release (earlier builds targeted Horizon). No gameplay change since `3.6.30-horizon.3`.
+- Removed a leftover cooking-pot debug line on stderr.
+"""
