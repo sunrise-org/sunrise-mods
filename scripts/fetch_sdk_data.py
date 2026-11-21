@@ -16,6 +16,7 @@ PLAIN = re.compile(r"[A-Za-z0-9][A-Za-z0-9._-]{0,127}")
 ASSETS = {"surface.json": ("surface", "none"), "build-data.tar.xz": ("build-data", "xz")}
 BUILD_DATA = {"functions.json", "internals.json", "loops.json"}
 MAX_BUILD_DATA = 1 << 30  # The SDK tool's unpacked build-data cap.
+MAX_GAME_LOCK = 16 << 20  # The registry tool's cap for the game's Cargo.lock.
 
 
 def download(tag: str, folder: Path, names) -> None:
@@ -88,6 +89,23 @@ def fetch(sha: str, into: Path) -> None:
         ready.rename(into / sha)
 
 
+def fetch_game_lock(sha: str, folder: Path) -> None:
+    """Keep the game's own lock, which review compares a native mod's requirements with.
+
+    No SDK asset carries all of it, so it is read from the build's commit, which names its content.
+    Without it the SDK data stays usable and review says the comparison was skipped.
+    """
+    result = subprocess.run(["gh", "api", "-H", "Accept: application/vnd.github.raw",
+                             f"repos/{REPO}/contents/Cargo.lock?ref={sha}"], capture_output=True)
+    if result.returncode != 0 or not 0 < len(result.stdout) <= MAX_GAME_LOCK:
+        print(f"::warning::sdk-{sha}: the game's Cargo.lock could not be fetched; "
+              "native dependency requirements are not compared for this build")
+        return
+    partial = folder / "Cargo.lock.partial"
+    partial.write_bytes(result.stdout)
+    partial.rename(folder / "Cargo.lock")
+
+
 def main(inputs: Path, into: Path) -> None:
     releases = json.loads((inputs / "releases.json").read_text())
     # Absent while Sunrise has no `nightly` release (fetch_releases.py --nightly-optional).
@@ -106,6 +124,8 @@ def main(inputs: Path, into: Path) -> None:
                 fetch(sha, into)
             except (subprocess.CalledProcessError, OSError, ValueError, KeyError, TypeError, tarfile.TarError) as error:
                 sys.exit(f"sdk-{sha}: {error}")
+        if not (into / sha / "Cargo.lock").is_file():
+            fetch_game_lock(sha, into / sha)
 
 
 if __name__ == "__main__":

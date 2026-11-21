@@ -30,20 +30,18 @@ The `mods/`, `collections/` and `sources/` folders hold only `<id>.toml` files.
 
 ## Submitting a project
 
-1. Check your package: `cargo sunrise-mod check my_mod.smod` (add `--key` and `--signature` if you sign it; a
-   version for a stable Sunrise release must be signed).
+1. Check your package: `cargo sunrise-mod check my_mod.smod --key <key> --signature <file>`. Every new
+   version is signed.
 2. Fork this repository and add `mods/<id>.toml`, `icons/<id>.png` and at least one screenshot in
-   `screenshots/<id>/`, listed in the entry's `screenshots`. A mod's `id` is the `id` in its `sunrise-mod.toml`.
-3. Open a pull request.
-   - A version for a stable Sunrise release (its row has `sunrise`) names your own release asset as its `file`:
-     the `check` workflow downloads it from your repository and tests it. Nothing is staged by hand. Such a
-     version must be signed: the entry needs your project's `key` and the version its `signature`. A project
-     that already lists unsigned versions can't add a `key` yet, because every listed version would then need
-     a signature and a published version's row can't be changed: it waits for the registry's migration of the
-     existing entries before it submits its first stable version.
-   - For any other version, link the exact file in the description (a GitHub release asset works) and give its
-     SHA-256. A maintainer copies that file to this repository's `staging` release as `<sha256>.<extension>`,
-     and the `check` workflow then tests it.
+   `screenshots/<id>/`, listed in the entry's `screenshots` (a mod in the `library` category needs none). A mod's `id` is the `id` in its `sunrise-mod.toml`.
+3. Open a pull request. Every new version names the stable Sunrise release it was made for (`sunrise`) and
+   your own release asset as its `file`, named `<id>-<version>` with your kind's extension: the `check` workflow downloads it from your repository and tests it.
+   Nothing is staged by hand. The entry needs your project's `key` and the version its `signature`.
+   - A row without `sunrise` is from before stable releases. It stays listed as it is, and `check` warns
+     about it; it can't be changed, and a new row without `sunrise` is refused.
+   - A `key` means every listed version carries a signature. A project that still lists unsigned rows from
+     before stable releases removes them in the pull request that adds its `key` and its first stable version.
+     Removing such a row needs no line in `revoked.toml`.
 4. A reviewer reads the change and merges it. The `publish` workflow then publishes the file as the release
    `<id>-<version>` and adds the project to the index.
 
@@ -64,16 +62,16 @@ icon = "icons/coords_hud.png"
 screenshots = ["screenshots/coords_hud/1-hud.png"]   # 1 to 8
 categories = ["utility"]        # 1 to 3 from your kind's list
 tags = ["hud"]                  # up to 10, lowercase
-# key = "RWT..."                # minisign public key: every version must then carry a signature. Optional,
-                                # but required once a version names a stable Sunrise release
+key = "RWT..."                  # minisign public key: every listed version carries a signature
 
 [[versions]]                    # newest first
 version = "0.1.0"
 published = "2026-11-16"
 game = "26.3"
-file = "coords_hud-0.1.0.smod"
-sha256 = "<lowercase hex>"
-# signature = """<the .minisig text>"""
+sunrise = "26.3-0.1.0"          # the stable Sunrise release it was made for
+file = "https://github.com/you/coords_hud/releases/download/v0.1.0/coords_hud-0.1.0.smod"
+sha256 = "<lowercase hex>"      # of that file
+signature = """<the .minisig text>"""
 changelog = ""
 ```
 
@@ -83,7 +81,8 @@ are refused. The category lists are in
 [`index/page.rs`](https://github.com/sunrise-org/sunrise/blob/main/crates/sunrise-mod-package/src/index/page.rs).
 
 **Updates.** To publish an update, add a new `[[versions]]` table at the top of the list. A published file
-never changes and is never removed: to take one down, add it to `revoked.toml`. A project's kind can't change.
+never changes: to take one down, add it to `revoked.toml`. Only a row without `sunrise`, from before stable
+releases, may leave an entry without that. A project's kind can't change.
 
 **Code mods.** A `mods/` entry doesn't follow a repository's releases (`repo = ...`). Every version is listed as its
 own file, as shown above. To list a native mod by its source instead, see [Source mods](#source-mods).
