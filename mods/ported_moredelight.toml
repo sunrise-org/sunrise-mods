@@ -1,0 +1,42 @@
+id = "ported_moredelight"
+kind = "mod"
+name = "More Delight (Sunrise port)"
+summary = "More Delight for Sunrise: wooden and stone knives and 31 foods for Farmer's Delight. Content only, no code. Needs Farmer's Delight."
+description = """
+An unofficial port of **More Delight** (Axperty, MIT), an add-on for Farmer's Delight, to Sunrise for Minecraft 26.3. It is a content-only mod: data and assets, no code.
+
+**Requires Farmer's Delight (Sunrise port), `ported_farmersdelight` `3.6.30-sunrise.1` exactly.** Install it first. This mod refuses to load without it or with another version.
+
+## What it adds
+
+- **Wooden and stone knives** that work as Farmer's Delight knives: cutting board, carving, cake and pie slices, straw, Backstabbing.
+- **31 foods:** rice and pasta meals, mashed and diced potatoes, salads, carrot soup, hamburgers, sandwiches, bread slices and toasts.
+- Their cooking-pot, cutting-board, crafting and furnace recipes, advancements and 34 translations.
+
+Works alongside Corn Delight (`ported_corn_delight`).
+
+## Multiplayer
+
+Every player and the server need the same Farmer's Delight port and this mod.
+
+## Known differences
+
+An add-on can't change Farmer's Delight's own files. So More Delight's bacon sandwich from bread slices is added beside Farmer's Delight's recipe instead of replacing it. Farmer's Delight's "craft a knife" advancement is unchanged, so More Delight's knives don't grant it. Details are in the README.
+"""
+authors = ["Axperty", "play-go"]
+owners = ["play-go"]
+license = "MIT"
+source = "https://github.com/play-go/moredelight-sunrise"
+icon = "icons/ported_moredelight.png"
+categories = ["food", "equipment"]
+tags = ["farmers-delight", "cooking", "knives", "foods", "delight", "addon"]
+
+[[versions]]
+version = "26.9.16-sunrise.1"
+published = "2026-11-18"
+game = "26.3"
+file = "ported_moredelight-26.9.16-sunrise.1.smod"
+sha256 = "8b208f89152981968038e5f013c9a58f36d2624731af1447ef00a860e4515289"
+changelog = """
+- First Sunrise release, for Farmer's Delight (Sunrise port) `3.6.30-sunrise.1`. No gameplay change since `26.9.16-horizon.2`.
+"""
