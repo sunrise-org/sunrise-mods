@@ -1,0 +1,43 @@
+id = "ported_corn_delight"
+kind = "native-mod"
+name = "Corn Delight (Sunrise port)"
+summary = "Corn Delight for Sunrise: two-tall corn, wild corn, corn dishes, nachos and popcorn feasts and the cob pipe. Needs Farmer's Delight."
+description = """
+An unofficial port of **Corn Delight** (Zheng Syameimaru and the MCMOD Modding Group, MIT), an add-on for Farmer's Delight, to Sunrise's native mod API for Minecraft 26.3. It is a rewrite in Rust that keeps the original's behaviour, quirks included.
+
+**Requires Farmer's Delight (Sunrise port), `ported_farmersdelight` `3.6.30-sunrise.1` exactly.** Install it first. The launcher refuses to build Corn Delight without it or with another version.
+
+## What it adds
+
+- **Corn:** a two-tall crop, and wild corn in temperate biomes.
+- **Kitchen:** corn dishes for the cooking pot and the cutting board, and two feasts, nachos and the popcorn box.
+- **The cob pipe**, and the "General of the Maize" advancement.
+- **Villages:** corn farms in villages, chest loot, and villager and wandering-trader trades.
+
+Works alongside More Delight (`ported_moredelight`).
+
+## Multiplayer
+
+Every player and the server need the same Farmer's Delight port and this mod.
+
+## Known differences
+
+There is no Corn Delight for Fabric or for Minecraft 26.x. The port follows Corn Delight 1.21 (NeoForge 1.21.1) for its own behaviour, and Farmer's Delight Refabricated 26.3 for what it inherits. Some trades give a fixed count instead of a random one, and `genCornFarm = false` doesn't remove the village corn farms. The full list of differences, and what happens to a world when the mod is removed (back it up first), is in the README.
+"""
+authors = ["Zheng Syameimaru", "MCMOD Modding Group", "play-go"]
+owners = ["play-go"]
+license = "MIT"
+source = "https://github.com/play-go/corndelight-sunrise"
+icon = "icons/ported_corn_delight.png"
+categories = ["food", "worldgen"]
+tags = ["farmers-delight", "corn", "cooking", "crops", "farming", "delight", "addon"]
+
+[[versions]]
+version = "1.1.8-sunrise.1"
+published = "2026-11-18"
+game = "26.3"
+file = "ported_corn_delight-1.1.8-sunrise.1.smod"
+sha256 = "02ed700e955a00a516917225a2a4c99ffe505a95cdec7746678f5e53b50100a8"
+changelog = """
+- First Sunrise release, for Farmer's Delight (Sunrise port) `3.6.30-sunrise.1`. No gameplay change since `1.1.8-horizon.1`.
+"""
