@@ -1,0 +1,18 @@
+version = "3.1.6"
+tag = "v3.1.6"
+published = "2026-11-23T14:58:17Z"
+sunrise = "nightly-2026-11-20-9425651"
+workflow = "sunrise-org/sunrise-mods/.github/workflows/release.yml@refs/tags/release-v1"
+dependencies = []
+
+[file]
+url = "https://github.com/arismoko/additional_lights/releases/download/v3.1.6/additional_lights-3.1.6.smod"
+size = 285636
+sha256 = "380e4c013dae48e715e2e21a5095da83fae4ac5bc4328870eb14f4556490087f"
+attestation = "https://github.com/arismoko/additional_lights/releases/download/v3.1.6/additional_lights-3.1.6.smod.sigstore.json"
+
+[page]
+url = "https://github.com/arismoko/additional_lights/releases/download/v3.1.6/additional_lights-3.1.6.page.tar"
+size = 1439744
+sha256 = "132992f6e375a54f305680a7adf027b039d0c26acb9ea27f8094e753494e1cd4"
+attestation = "https://github.com/arismoko/additional_lights/releases/download/v3.1.6/additional_lights-3.1.6.page.tar.sigstore.json"

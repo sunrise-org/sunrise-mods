@@ -17,7 +17,10 @@ Differences from the original:
 - The standing torches, fire pits, fires and the fire-type, soul and light wands are not ported yet.
 - A floor torch item places only the floor torch; place the wall torch from its own block (a content mod can't give a torch item a wall form yet).
 """
-authors = ["mgen256"]
+authors = [
+    "mgen256",
+    "arismoko",
+]
 license = "MIT"
 homepage = "https://github.com/arismoko/additional_lights"
 icon = "icon.png"
