@@ -1,0 +1,18 @@
+version = "0.2.2"
+tag = "v0.2.2"
+published = "2026-11-23T14:24:54Z"
+sunrise = "nightly-2026-11-20-9425651"
+workflow = "sunrise-org/sunrise-mods/.github/workflows/release.yml@refs/tags/release-v1"
+dependencies = []
+
+[file]
+url = "https://github.com/arismoko/macaws_doors/releases/download/v0.2.2/mcwdoors-0.2.2.smod"
+size = 1232799
+sha256 = "d02ec0c8e08aec984d2cf65a0ecf8e69a9f28d25c29e2faaa2fa244913b47ce9"
+attestation = "https://github.com/arismoko/macaws_doors/releases/download/v0.2.2/mcwdoors-0.2.2.smod.sigstore.json"
+
+[page]
+url = "https://github.com/arismoko/macaws_doors/releases/download/v0.2.2/mcwdoors-0.2.2.page.tar"
+size = 708096
+sha256 = "893fa42f0a5f63a0991ec8997659f69568aa5b65619199b8580ce31cc474c1ba"
+attestation = "https://github.com/arismoko/macaws_doors/releases/download/v0.2.2/mcwdoors-0.2.2.page.tar.sigstore.json"
