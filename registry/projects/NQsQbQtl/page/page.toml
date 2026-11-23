@@ -16,7 +16,10 @@ Differences from the original:
 - The three redstone fans don't switch on with redstone; that is Java code.
 - Blocks show no tooltips, and use the iron block's sounds instead of the mod's own metal sound.
 """
-authors = ["slaincow"]
+authors = [
+    "slaincow",
+    "arismoko",
+]
 license = "MIT"
 homepage = "https://github.com/arismoko/factory_blocks_forge_fabric_neoforge"
 icon = "icon.png"

@@ -1,0 +1,18 @@
+version = "1.4.4"
+tag = "v1.4.4"
+published = "2026-11-23T14:58:58Z"
+sunrise = "nightly-2026-11-20-9425651"
+workflow = "sunrise-org/sunrise-mods/.github/workflows/release.yml@refs/tags/release-v1"
+dependencies = []
+
+[file]
+url = "https://github.com/arismoko/factory_blocks_forge_fabric_neoforge/releases/download/v1.4.4/factory_blocks-1.4.4.smod"
+size = 779616
+sha256 = "d6a5372e3ff278fdfeb8a8001000267d274cf710896b060afae931ea1191f084"
+attestation = "https://github.com/arismoko/factory_blocks_forge_fabric_neoforge/releases/download/v1.4.4/factory_blocks-1.4.4.smod.sigstore.json"
+
+[page]
+url = "https://github.com/arismoko/factory_blocks_forge_fabric_neoforge/releases/download/v1.4.4/factory_blocks-1.4.4.page.tar"
+size = 870912
+sha256 = "994cf2eddf4cebbeae8a37cab3e0e2156f49665c544d4ca629675a25e03692a2"
+attestation = "https://github.com/arismoko/factory_blocks_forge_fabric_neoforge/releases/download/v1.4.4/factory_blocks-1.4.4.page.tar.sigstore.json"
