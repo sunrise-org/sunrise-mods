@@ -1,0 +1,18 @@
+version = "0.3.1"
+tag = "v0.3.1"
+published = "2026-11-23T15:23:17Z"
+sunrise = "nightly-2026-11-20-9425651"
+workflow = "sunrise-org/sunrise-mods/.github/workflows/release.yml@refs/tags/release-v1"
+dependencies = []
+
+[file]
+url = "https://github.com/arismoko/yungs_better_witch_huts/releases/download/v0.3.1/betterwitchhuts-0.3.1.smod"
+size = 36663
+sha256 = "2ef9e1c9ee2ee135609e3e254ac868a7430653dc818994cff8f96a91c4a4e9b4"
+attestation = "https://github.com/arismoko/yungs_better_witch_huts/releases/download/v0.3.1/betterwitchhuts-0.3.1.smod.sigstore.json"
+
+[page]
+url = "https://github.com/arismoko/yungs_better_witch_huts/releases/download/v0.3.1/betterwitchhuts-0.3.1.page.tar"
+size = 906752
+sha256 = "2f3a05ff9f81a87ec0f430f160cbd379ce7d99051eb05cf3d5dbb9e2e751ba53"
+attestation = "https://github.com/arismoko/yungs_better_witch_huts/releases/download/v0.3.1/betterwitchhuts-0.3.1.page.tar.sigstore.json"
