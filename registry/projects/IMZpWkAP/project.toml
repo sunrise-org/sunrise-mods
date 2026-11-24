@@ -1,0 +1,9 @@
+id = "IMZpWkAP"
+slug = "comforts"
+mod = "comforts"
+kind = "native-mod"
+owners = ["arismoko"]
+repository = 1468300372
+path = "comforts"
+workflow = "sunrise-org/sunrise-mods/.github/workflows/release.yml"
+registered = "2026-11-24"

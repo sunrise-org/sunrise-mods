@@ -1,0 +1,9 @@
+id = "MB4FPruT"
+slug = "dynamic-fps"
+mod = "dynamicfps"
+kind = "native-mod"
+owners = ["arismoko"]
+repository = 1468300372
+path = "dynamicfps"
+workflow = "sunrise-org/sunrise-mods/.github/workflows/release.yml"
+registered = "2026-11-24"
