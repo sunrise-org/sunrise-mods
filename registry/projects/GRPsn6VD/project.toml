@@ -1,0 +1,9 @@
+id = "GRPsn6VD"
+slug = "enchantment-descriptions"
+mod = "enchantmentdescriptions"
+kind = "native-mod"
+owners = ["arismoko"]
+repository = 1468300372
+path = "enchantmentdescriptions"
+workflow = "sunrise-org/sunrise-mods/.github/workflows/release.yml"
+registered = "2026-11-25"
