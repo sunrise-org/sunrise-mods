@@ -95,3 +95,7 @@ project = "j32vhiOj"
 [[package]]
 path = "betterpingdisplay"
 project = "YKejpBG6"
+
+[[package]]
+path = "pickupnotifier"
+project = "kNwfe8pN"
