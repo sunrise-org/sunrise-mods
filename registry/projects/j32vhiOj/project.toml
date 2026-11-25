@@ -1,0 +1,9 @@
+id = "j32vhiOj"
+slug = "clumps"
+mod = "clumps"
+kind = "native-mod"
+owners = ["arismoko"]
+repository = 1468300372
+path = "clumps"
+workflow = "sunrise-org/sunrise-mods/.github/workflows/release.yml"
+registered = "2026-11-25"
