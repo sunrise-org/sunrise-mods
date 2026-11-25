@@ -1,0 +1,9 @@
+id = "2R08j410"
+slug = "ping-wheel"
+mod = "pingwheel"
+kind = "native-mod"
+owners = ["arismoko"]
+repository = 1468300372
+path = "pingwheel"
+workflow = "sunrise-org/sunrise-mods/.github/workflows/release.yml"
+registered = "2026-11-25"
