@@ -1,0 +1,9 @@
+id = "YKejpBG6"
+slug = "better-ping-display"
+mod = "betterpingdisplay"
+kind = "native-mod"
+owners = ["arismoko"]
+repository = 1468300372
+path = "betterpingdisplay"
+workflow = "sunrise-org/sunrise-mods/.github/workflows/release.yml"
+registered = "2026-11-25"
