@@ -1,0 +1,9 @@
+id = "o7DGgKeA"
+slug = "magma-golem"
+mod = "magma_golem"
+kind = "native-mod"
+owners = ["EAnathos"]
+repository = 1449407242
+path = "mods/magma_golem"
+workflow = "sunrise-org/sunrise-mods/.github/workflows/release.yml"
+registered = "2026-11-26"

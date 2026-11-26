@@ -37,6 +37,10 @@ path = "mods/ladybugs"
 project = "lg0nzXEj"
 
 [[package]]
+path = "mods/magma_golem"
+project = "o7DGgKeA"
+
+[[package]]
 path = "mods/phasmids"
 project = "utIDSCOG"
 
