@@ -1,0 +1,80 @@
+name = "Elephant"
+summary = "A savanna elephant to tame with sugar cane, ride with a friend, load with two chests a flank, breed and raise."
+description = """
+> **Beta.** Played and tested in single player; multiplayer and balance come later. Reports are welcome on the [issues](https://github.com/EAnathos/sunrise-creatures/issues).
+
+A mod of the [Sunrise Creatures](https://github.com/EAnathos/sunrise-creatures/blob/elephant/v0.1.0/README.md) series: a savanna elephant, five blocks tall, to tame, ride with a
+friend, load with chests, breed and raise. **Requires** [Sunrise Creatures](https://playsunrise.net/mods/creature), the
+series' library.
+
+## Meeting one
+
+Elephants roam the savanna and savanna plateau in small herds of two to four, on open, flat ground. In creative: the
+spawn egg (creative tab "Sunrise Creatures").
+
+They attack no one unprovoked. Hit one, or someone riding it, and it trumpets and charges you once, a heavy blow that
+throws you back, then lets you go. Each has its own health and pace.
+
+## Taming and riding
+
+- **Taming**: throw sugar cane near a wild elephant. It walks to it and eats it; each piece has a one in four chance to
+  tame it for you. Tamed, it follows you on foot or stays where you tell it (an empty-handed right-click), and never
+  despawns. A hay bale heals it.
+- **Riding**: give it a saddle; it wears a woven blanket you can dye with any dye. Right-click to get on: you ride in
+  front and steer it where you look; a friend can sit behind you. In deep water it swims with its head out and its
+  riders fall off, as from a horse.
+- **Chests**: give it two chests at once and it carries them on a flank, 54 slots a side, 108 in all. Sneak and
+  right-click to open its screen: its saddle, staying or following, and a chest per side (click to open that side,
+  shift-click to take the chests off with what they hold).
+
+## Breeding and growing up
+
+Feed two tamed elephants a hay bale each: in love, they meet and have a baby, tamed to you, with stats taken from both
+parents. A baby grows into a juvenile after 10 minutes and into an adult 10 minutes later (a hay bale speeds it up).
+Only adults can be saddled, loaded or ridden.
+
+## What it leaves
+
+- Raw elephant meat (1 to 3), to cook in a furnace, a smoker or on a campfire.
+- Sometimes an **ivory tusk**: with a copper ingot and string it makes a **ceremonial trumpet**, which plays an
+  elephant's trumpet.
+- Its saddle, its chests and all they held.
+
+## Licence
+
+Required Notice: Copyright (c) 2026 EAnathos (https://github.com/EAnathos/sunrise-creatures)
+
+The code is under the [PolyForm Noncommercial License 1.0.0](https://polyformproject.org/licenses/noncommercial/1.0.0).
+The artwork (models, textures, icons, pictures) is the author's, all rights reserved, under the terms of
+[LICENSE-ART.md](https://github.com/EAnathos/sunrise-creatures/blob/main/LICENSE-ART.md). The sounds are CC0.
+"""
+authors = ["EAnathos"]
+license = "PolyForm-Noncommercial-1.0.0 AND LicenseRef-SunriseCreatures-Art"
+homepage = "https://github.com/EAnathos/sunrise-creatures/blob/main/mods/elephant/README.md"
+issues = "https://github.com/EAnathos/sunrise-creatures/issues"
+icon = "icon.png"
+categories = [
+    "mobs",
+    "transportation",
+    "storage",
+]
+
+[[screenshots]]
+path = "1-elephant.jpg"
+caption = ""
+
+[[screenshots]]
+path = "2-elephant-elephant-front.png"
+caption = ""
+
+[[screenshots]]
+path = "3-elephant-elephant-back.png"
+caption = ""
+
+[[screenshots]]
+path = "4-elephant-juvenile-front.png"
+caption = ""
+
+[[screenshots]]
+path = "5-elephant-baby-front.png"
+caption = ""

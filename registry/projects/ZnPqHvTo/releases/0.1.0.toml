@@ -1,0 +1,24 @@
+version = "0.1.0"
+kind = "native-mod"
+tag = "elephant/v0.1.0"
+published = "2026-11-26T21:00:48Z"
+sunrise = "nightly-2026-11-20-9425651"
+workflow = "sunrise-org/sunrise-mods/.github/workflows/release.yml@refs/tags/release-v1"
+repository = 1449407242
+
+[file]
+url = "https://github.com/EAnathos/sunrise-creatures/releases/download/elephant/v0.1.0/elephant-0.1.0.smod"
+size = 248303
+sha256 = "633c4b6ce250bb81b95646f92154de291be82f4c96b67d7c52a180ee9d56e063"
+attestation = "https://github.com/EAnathos/sunrise-creatures/releases/download/elephant/v0.1.0/elephant-0.1.0.smod.sigstore.json"
+
+[page]
+url = "https://github.com/EAnathos/sunrise-creatures/releases/download/elephant/v0.1.0/elephant-0.1.0.page.tar"
+size = 232448
+sha256 = "c9582fbc105fbbc3e2ffa2262c4529a565e058fc5a556348e0caed36ce3859ab"
+attestation = "https://github.com/EAnathos/sunrise-creatures/releases/download/elephant/v0.1.0/elephant-0.1.0.page.tar.sigstore.json"
+
+[[dependencies]]
+mod = "creature"
+version = "^0.4.3"
+required = true

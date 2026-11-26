@@ -1,8 +1,10 @@
+# The Sunrise Creatures collection on Sunrise's registry (docs/PUBLISHING.md, "The collection"): proposed to
+# sunrise-org/sunrise-mods by `cargo sunrise-mod collection` run in this folder.
 id = "4pggl9jF"
 name = "Sunrise Creatures"
-summary = "EAnathos's creatures for Sunrise: birds, insects, sea life, spirits and a giant, each with a page in the creature guide."
+summary = "EAnathos's creatures for Sunrise: birds, insects, sea life, spirits, giants and an elephant, each with a page in the creature guide."
 description = """
-The Sunrise Creatures series fills the world with animals and beings that each behave in their own way: butterflies and moths, fireflies, ladybugs, stick insects, dung beetles, worms and scorpions; seagulls, a vulture you can ride, flying fish and jellyfish; and sporelins, fairies, storm spirits and a cyclops. A creature guide given to every player records each one you meet in its bestiary, and Vanilla Bestiary adds Minecraft's own creatures to it.
+The Sunrise Creatures series fills the world with animals and beings that each behave in their own way: butterflies and moths, fireflies, ladybugs, stick insects, dung beetles, worms and scorpions; seagulls, a vulture you can ride, flying fish and jellyfish; sporelins, fairies, storm spirits and a cyclops; an elephant you can ride with a friend and load with chests; and a magma golem, a mini-boss asleep in the Nether. A creature guide given to every player records each one you meet in its bestiary, and Vanilla Bestiary adds Minecraft's own creatures to it.
 
 These mods are written by EAnathos. Each is its own project with its own page; pick the ones you want. All of them need the Sunrise Creatures library, which is installed with any of them.
 """
@@ -54,6 +56,12 @@ project = "RwN3a95s"  # Storm Spirits
 
 [[member]]
 project = "Hj69RRll"  # Cyclops
+
+[[member]]
+project = "ZnPqHvTo"  # Elephant
+
+[[member]]
+project = "o7DGgKeA"  # Magma Golem
 
 [[member]]
 project = "WFZs73aL"  # Vanilla Bestiary

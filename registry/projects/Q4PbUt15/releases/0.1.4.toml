@@ -1,0 +1,24 @@
+version = "0.1.4"
+kind = "native-mod"
+tag = "sporelins/v0.1.4"
+published = "2026-11-26T21:01:40Z"
+sunrise = "nightly-2026-11-20-9425651"
+workflow = "sunrise-org/sunrise-mods/.github/workflows/release.yml@refs/tags/release-v1"
+repository = 1449407242
+
+[file]
+url = "https://github.com/EAnathos/sunrise-creatures/releases/download/sporelins/v0.1.4/sporelins-0.1.4.smod"
+size = 42932
+sha256 = "2f9efe4d9f4dd3d1b1de802ab27aba18868fc5a6b555ab182feabd2a9a56ec3c"
+attestation = "https://github.com/EAnathos/sunrise-creatures/releases/download/sporelins/v0.1.4/sporelins-0.1.4.smod.sigstore.json"
+
+[page]
+url = "https://github.com/EAnathos/sunrise-creatures/releases/download/sporelins/v0.1.4/sporelins-0.1.4.page.tar"
+size = 119808
+sha256 = "e564b597e330f79ed738afadff77ce6f4e167f96c62cf56fd7210afac11594f5"
+attestation = "https://github.com/EAnathos/sunrise-creatures/releases/download/sporelins/v0.1.4/sporelins-0.1.4.page.tar.sigstore.json"
+
+[[dependencies]]
+mod = "creature"
+version = "^0.4.3"
+required = true
