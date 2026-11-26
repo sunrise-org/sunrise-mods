@@ -520,36 +520,51 @@ pub fn stay_listed(base: &Path, head: &Path) -> Result<(), String> {
 /// differs from `base` in exactly two files: the new project's `project.toml`, and its
 /// repository's file, which is new with that one package or keeps its name and its packages in
 /// their order and gains that one. Where the new package stands in the file does not matter.
-/// Every other file is compared byte for byte; of `base` only the repository's file is parsed.
+/// Every other file keeps its bytes and its executable bit, and no empty directory (what a
+/// submodule checks out as) comes or goes; of `base` only the repository's file is parsed.
 pub fn registration(base: &Path, head: &Path) -> Result<(), String> {
+    use std::os::unix::fs::PermissionsExt;
+
     let after = load(head).map_err(|e| e.join("\n"))?;
-    let files = |checkout: &Path| {
-        let mut files = BTreeSet::new();
+    // Each file with whether it is executable, and each empty directory as `None`.
+    let entries = |checkout: &Path| {
+        let mut tree = Tree::new(checkout);
+        let mut found = BTreeMap::new();
         let mut dirs = vec![PathBuf::from("registry")];
         while let Some(dir) = dirs.pop() {
-            let at = checkout.join(&dir);
-            for entry in std::fs::read_dir(&at).map_err(|e| format!("{}: {e}", at.display()))? {
-                let entry = entry.map_err(|e| format!("{}: {e}", at.display()))?;
-                let path = dir.join(entry.file_name());
-                if entry.file_type().is_ok_and(|kind| kind.is_dir()) {
-                    dirs.push(path);
-                } else {
-                    files.insert(path);
+            let listed = tree.list(&dir);
+            if listed.is_empty() {
+                found.insert(dir.clone(), None);
+            }
+            for (name, entry) in listed {
+                let path = dir.join(name);
+                match entry {
+                    Entry::Directory => dirs.push(path),
+                    Entry::File => match std::fs::metadata(checkout.join(&path)) {
+                        Ok(meta) => {
+                            found.insert(path, Some(meta.permissions().mode() & 0o111 != 0));
+                        }
+                        Err(error) => tree.problem(&path, error),
+                    },
                 }
             }
         }
-        Ok::<_, String>(files)
+        let problems = tree.finish();
+        if problems.is_empty() {
+            Ok(found)
+        } else {
+            Err(problems.join("\n"))
+        }
     };
-    let (before_files, after_files) = (files(base)?, files(head)?);
+    let (before_files, after_files) = (entries(base)?, entries(head)?);
     let mut changed = BTreeSet::new();
-    for path in before_files.union(&after_files) {
+    for path in before_files.keys().chain(after_files.keys()) {
+        let (was, is) = (before_files.get(path), after_files.get(path));
         let read = |checkout: &Path| {
             let file = checkout.join(path);
             std::fs::read(&file).map_err(|e| format!("{}: {e}", file.display()))
         };
-        if !(before_files.contains(path) && after_files.contains(path))
-            || read(base)? != read(head)?
-        {
+        if was != is || (matches!(is, Some(Some(_))) && read(base)? != read(head)?) {
             changed.insert(path.clone());
         }
     }
@@ -557,7 +572,7 @@ pub fn registration(base: &Path, head: &Path) -> Result<(), String> {
         .projects
         .iter()
         .filter(|(id, _)| {
-            !before_files.contains(
+            !before_files.contains_key(
                 &Path::new("registry/projects")
                     .join(id.as_str())
                     .join("project.toml"),
@@ -587,9 +602,18 @@ pub fn registration(base: &Path, head: &Path) -> Result<(), String> {
             repository_file.display()
         ));
     }
+    if let Some(file) = [&project_file, &repository_file]
+        .into_iter()
+        .find(|file| after_files.get(*file) != Some(&Some(false)))
+    {
+        return Err(format!(
+            "{}: expected a file that is not executable",
+            file.display()
+        ));
+    }
     let now = &after.repositories[&new.project.repository];
     let kept = now.package.iter().filter(|package| package.project != **id);
-    let unchanged = if before_files.contains(&repository_file) {
+    let unchanged = if before_files.contains_key(&repository_file) {
         let file = base.join(&repository_file);
         let text =
             std::fs::read_to_string(&file).map_err(|e| format!("{}: {e}", file.display()))?;

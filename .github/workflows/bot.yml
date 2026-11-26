@@ -63,12 +63,16 @@ jobs:
         if: github.event_name == 'pull_request'
         working-directory: .
         run: target/release/registry-bot stay-listed base .
-      # Only the registry's own registrations. The first parent of the merge commit is main as
+      # Only the registry's own registrations. A pull request runs its own copy of this file and
+      # this step reads nothing outside registry/, so whoever merges on this check also requires
+      # that the pull request changes no other file. The first parent of the merge commit is main as
       # this run merged it; the base the event names may be older and lack projects main has.
       - name: A registration adds one project and its package
         if: >-
           github.event_name == 'pull_request'
           && github.event.pull_request.user.login == 'sunrise-sunny[bot]'
+          && github.event.pull_request.head.repo.full_name == github.repository
+          && github.base_ref == 'main'
           && startsWith(github.head_ref, 'register/')
         working-directory: .
         run: |

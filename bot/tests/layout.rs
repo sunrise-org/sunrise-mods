@@ -1524,10 +1524,75 @@ fn a_registration_adds_one_project_and_its_package_and_nothing_else() {
         "registry/projects/Ab3dE9xQ/project.toml: a registration of Nw7pQr2s changes only",
     );
     let other_file = appended();
-    fs::remove_file(other_file.path().join(RELEASE)).unwrap();
+    fs::remove_dir_all(other_file.path().join(RELEASE).parent().unwrap()).unwrap();
     refused(
         &other_file,
         "registry/projects/Ab3dE9xQ/releases/1.2.0.toml: a registration of Nw7pQr2s changes only",
+    );
+    let executable = appended();
+    fs::set_permissions(
+        executable.path().join(RELEASE),
+        std::os::unix::fs::PermissionsExt::from_mode(0o755),
+    )
+    .unwrap();
+    refused(
+        &executable,
+        "registry/projects/Ab3dE9xQ/releases/1.2.0.toml: a registration of Nw7pQr2s changes only",
+    );
+    let own_executable = appended();
+    fs::set_permissions(
+        own_executable.path().join(NEW),
+        std::os::unix::fs::PermissionsExt::from_mode(0o755),
+    )
+    .unwrap();
+    refused(
+        &own_executable,
+        "registry/projects/Nw7pQr2s/project.toml: expected a file that is not executable",
+    );
+    // A submodule checks out as an empty directory.
+    let submodule = appended();
+    fs::create_dir(submodule.path().join("registry/projects/Nw7pQr2s/releases")).unwrap();
+    refused(
+        &submodule,
+        "registry/projects/Nw7pQr2s/releases: a registration of Nw7pQr2s changes only",
+    );
+    // The packages a repository already lists keep their order: a third package arrives while
+    // the first two change places.
+    let third = |swap: bool| {
+        let head = appended();
+        fs::create_dir_all(head.path().join("registry/projects/Tw0pQr2s")).unwrap();
+        fs::write(
+            head.path().join("registry/projects/Tw0pQr2s/project.toml"),
+            fs::read_to_string(head.path().join(NEW))
+                .unwrap()
+                .replace("Nw7pQr2s", "Tw0pQr2s")
+                .replace("lanterns", "candles"),
+        )
+        .unwrap();
+        let rows = [
+            "[[package]]\npath = \"mods/wayfinder\"\nproject = \"Zz91kLmN\"\n",
+            "[[package]]\npath = \"mods/lanterns\"\nproject = \"Nw7pQr2s\"\n",
+        ];
+        let [first, second] = if swap { [rows[1], rows[0]] } else { rows };
+        fs::write(
+            head.path().join(REPOSITORY_2),
+            format!("name = \"other/port-collection\"\n\n{first}\n[[package]]\npath = \"mods/candles\"\nproject = \"Tw0pQr2s\"\n\n{second}"),
+        )
+        .unwrap();
+        let result = run(
+            &["registration", appended().path().to_str().unwrap(), "."],
+            head.path(),
+        );
+        (
+            result.status.success(),
+            String::from_utf8(result.stderr).unwrap(),
+        )
+    };
+    assert!(third(false).0);
+    let (passed, stderr) = third(true);
+    assert!(
+        !passed && stderr.contains("registry/repositories/987654321.toml: a registration of Tw0pQr2s adds its one package"),
+        "{stderr}"
     );
     // A second registration in the same change.
     let two = appended();
