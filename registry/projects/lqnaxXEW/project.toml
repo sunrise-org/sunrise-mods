@@ -1,0 +1,9 @@
+id = "lqnaxXEW"
+slug = "morechathistory"
+mod = "morechathistory"
+kind = "native-mod"
+owners = ["arismoko"]
+repository = 1468300372
+path = "morechathistory"
+workflow = "sunrise-org/sunrise-mods/.github/workflows/release.yml"
+registered = "2026-11-26"
