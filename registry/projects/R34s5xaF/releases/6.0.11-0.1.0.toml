@@ -1,0 +1,25 @@
+version = "6.0.11-0.1.0"
+kind = "native-mod"
+tag = "create/v6.0.11-0.1.0"
+published = "2026-11-26T16:18:53Z"
+sunrise = "dev-2026-11-26-ba1f24e"
+workflow = "sunrise-org/sunrise-mods/.github/workflows/release.yml@refs/tags/release-v1"
+repository = 1443415428
+dependencies = []
+
+[file]
+url = "https://github.com/OlaHulleberg/create-sunrise/releases/download/create/v6.0.11-0.1.0/create-6.0.11-0.1.0.smod"
+size = 4742685
+sha256 = "d755c35345c86363170d826e7524d98dded777c509aaa37edc60ef7553511274"
+attestation = "https://github.com/OlaHulleberg/create-sunrise/releases/download/create/v6.0.11-0.1.0/create-6.0.11-0.1.0.smod.sigstore.json"
+
+[page]
+url = "https://github.com/OlaHulleberg/create-sunrise/releases/download/create/v6.0.11-0.1.0/create-6.0.11-0.1.0.page.tar"
+size = 1553408
+sha256 = "7b40244fde97ffc174f6527bc1600e850c2bb98983f528be0034bddb30b3b23b"
+attestation = "https://github.com/OlaHulleberg/create-sunrise/releases/download/create/v6.0.11-0.1.0/create-6.0.11-0.1.0.page.tar.sigstore.json"
+
+[[jars]]
+id = "create"
+version = "6.0.10"
+sha512 = "11cc8fc049d2f67f6548c7abfada6b82a3adb5c7ca410a742de04bbca76e03862c518721b88d806f6e6d768a4d68531fdb903a85859b25d1484d550cc7bafd4b"

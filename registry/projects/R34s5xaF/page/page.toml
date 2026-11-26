@@ -1,0 +1,57 @@
+name = "Create"
+summary = "Create 6.0.11, the mod of shafts, cogs, belts, presses and trains, ported to Rust as a Sunrise native mod."
+description = """
+An unofficial port of [Create](https://github.com/Creators-of-Create/Create) by the Create Team, rewritten in Rust as a
+native mod on Sunrise's mod API. It is not made or endorsed by the Create Team. Create's code is MIT; this port is MIT
+too. It is ported and maintained by [OlaHulleberg](https://github.com/OlaHulleberg) and
+[arismoko](https://github.com/arismoko) at [OlaHulleberg/create-sunrise](https://github.com/OlaHulleberg/create-sunrise).
+
+Kinetics, processing, logistics, contraptions and trains follow Create 6.0.11's source, and the engine is checked
+against Create's own Java by a differential fuzzer.
+
+Create's textures, models and sounds are All Rights Reserved and are not in this package: your game reads them from
+Create's official jar, which the launcher asks to download from Modrinth, where the Create Team publishes it.
+
+What the port still needs from the mod API is listed in
+[API_GAPS.md](https://github.com/OlaHulleberg/create-sunrise/blob/main/API_GAPS.md). Bugs and requests go to the
+[issue tracker](https://github.com/OlaHulleberg/create-sunrise/issues), not to the Create Team.
+"""
+authors = [
+    "The Create Team / The Creators of Create",
+    "OlaHulleberg",
+    "arismoko",
+]
+license = "MIT"
+homepage = "https://github.com/OlaHulleberg/create-sunrise"
+issues = "https://github.com/OlaHulleberg/create-sunrise/issues"
+icon = "icon.png"
+categories = [
+    "technology",
+    "transportation",
+    "storage",
+    "decoration",
+]
+
+[[screenshots]]
+path = "factory-floor.jpg"
+caption = "A factory floor"
+
+[[screenshots]]
+path = "gearworks.jpg"
+caption = "Shafts, cogs and gearboxes"
+
+[[screenshots]]
+path = "locomotive.jpg"
+caption = "A train"
+
+[[screenshots]]
+path = "water-wheel.jpg"
+caption = "A water wheel"
+
+[[screenshots]]
+path = "sunset-line.jpg"
+caption = "A rail line at sunset"
+
+[[screenshots]]
+path = "approach.jpg"
+caption = "A works by the coast"
