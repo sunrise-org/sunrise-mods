@@ -530,7 +530,12 @@ pub fn registration(base: &Path, head: &Path) -> Result<(), String> {
     let entries = |checkout: &Path| {
         let mut tree = Tree::new(checkout);
         let mut found = BTreeMap::new();
-        let mut dirs = vec![PathBuf::from("registry")];
+        let mut dirs = Vec::new();
+        match tree.entry(Path::new("registry")) {
+            Some(Entry::Directory) => dirs.push(PathBuf::from("registry")),
+            Some(Entry::File) => tree.problem(Path::new("registry"), "expected a directory"),
+            None => (),
+        }
         while let Some(dir) = dirs.pop() {
             let listed = tree.list(&dir);
             if listed.is_empty() {
@@ -558,7 +563,8 @@ pub fn registration(base: &Path, head: &Path) -> Result<(), String> {
     };
     let (before_files, after_files) = (entries(base)?, entries(head)?);
     let mut changed = BTreeSet::new();
-    for path in before_files.keys().chain(after_files.keys()) {
+    let paths: BTreeSet<_> = before_files.keys().chain(after_files.keys()).collect();
+    for path in paths {
         let (was, is) = (before_files.get(path), after_files.get(path));
         let read = |checkout: &Path| {
             let file = checkout.join(path);
