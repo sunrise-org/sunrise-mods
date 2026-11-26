@@ -22,9 +22,6 @@ jobs:
     permissions:
       contents: write
       pull-requests: write
-      # Starts the tool's checks on the proposed branch: GitHub starts no pull_request workflow
-      # for a pull request this token opened.
-      actions: write
     env:
       GH_TOKEN: ${{ github.token }}
     steps:
@@ -58,9 +55,10 @@ jobs:
             exit 0
           fi
           cat "$RUNNER_TEMP/chosen" >> "$GITHUB_OUTPUT"
-      # A branch is one proposal for one commit and is never replaced. Each run finishes what
-      # an earlier one left undone: the pull request for a pushed branch, the checks for an
-      # open pull request's head. A closed pull request was refused and stays closed.
+      # A branch is one proposal for one commit and is never replaced. A run opens the pull
+      # request for a branch an earlier run pushed and could not open. A closed pull request
+      # was refused and stays closed. The pull request's checks wait for a maintainer's
+      # approval, as for every pull request a workflow's token opens (docs/registry-v2.md).
       - name: Propose the pin
         if: steps.build.outputs.commit
         env:
@@ -71,7 +69,8 @@ jobs:
           set -euo pipefail
           branch="bot-pin/$COMMIT"
           title="Bot: pin the Sunrise crates at $TAG"
-          pulls=$(gh api "repos/$GITHUB_REPOSITORY/pulls?state=all&head=${GITHUB_REPOSITORY_OWNER}:$branch")
+          pulls=$(gh api "repos/$GITHUB_REPOSITORY/pulls?state=all&base=main&head=${GITHUB_REPOSITORY_OWNER}:$branch" \
+            --jq 'map(select(.user.login == "github-actions[bot]"))')
           if [[ $(jq length <<< "$pulls") == 0 ]]; then
             sed -i "s/$PIN/$COMMIT/g" bot/Cargo.toml
             # Resolves again and rewrites the lockfile for the moved crates only.
@@ -81,23 +80,17 @@ jobs:
               -c user.email='41898282+github-actions[bot]@users.noreply.github.com' commit -q -s -m "$title"
             cred=(-c credential.helper= -c 'credential.helper=!gh auth git-credential')
             # A branch a run pushed before it could open the pull request is used only when
-            # its base and tree are exactly the ones just generated.
+            # it is one commit that changes the two files to exactly what was just generated.
+            # Its base may be an older main.
             if ! git "${cred[@]}" push origin "HEAD:refs/heads/$branch"; then
               git "${cred[@]}" fetch --no-tags --depth=2 origin "refs/heads/$branch"
-              if [[ "$(git rev-parse 'FETCH_HEAD^' 'FETCH_HEAD^{tree}')" != "$(git rev-parse 'HEAD^' 'HEAD^{tree}')" ]]; then
+              files=(bot/Cargo.lock bot/Cargo.toml)
+              if [[ "$(git diff --name-only 'FETCH_HEAD^' FETCH_HEAD)" != "$(printf '%s\n' "${files[@]}")" ]] \
+                || ! git diff --quiet FETCH_HEAD HEAD -- "${files[@]}"; then
                 echo "::error::The branch $branch exists and is not this proposal; delete it to propose the pin again."
                 exit 1
               fi
             fi
-            pulls=$(gh api "repos/$GITHUB_REPOSITORY/pulls" -X POST -f base=main -f head="$branch" -f title="$title" -f body="The registry offers the game build \`$TAG\` at \`$COMMIT\`, ahead of the commit the registry tool's Sunrise crates are pinned at (\`$PIN\`). This moves the pin and its lockfile entries to that build, so releases made for it are read with its own package reader. Nothing else changes.
-
-          The tool's checks run on this branch as a \`registry-v2\` run started for it." --jq '[.]')
+            pulls=$(gh api "repos/$GITHUB_REPOSITORY/pulls" -X POST -f base=main -f head="$branch" -f title="$title" -f body="The registry offers the game build \`$TAG\` at \`$COMMIT\`, ahead of the commit the registry tool's Sunrise crates are pinned at (\`$PIN\`). This moves the pin and its lockfile entries to that build, so releases made for it are read with its own package reader. Nothing else changes." --jq '[.]')
           fi
-          read -r number state head < <(jq -r '.[0] | "\(.number) \(.state) \(.head.sha)"' <<< "$pulls")
-          echo "The pin at $TAG is #$number ($state)." >> "$GITHUB_STEP_SUMMARY"
-          if [[ "$state" == open ]]; then
-            runs=$(gh api "repos/$GITHUB_REPOSITORY/actions/workflows/bot.yml/runs?event=workflow_dispatch&head_sha=$head" --jq .total_count)
-            if (( runs == 0 )); then
-              gh workflow run bot.yml --repo "$GITHUB_REPOSITORY" --ref "$branch"
-            fi
-          fi
+          jq -r '.[0] | "The pin at \(env.TAG) is #\(.number) (\(.state))."' <<< "$pulls" >> "$GITHUB_STEP_SUMMARY"

@@ -498,4 +498,5 @@ with `not a release` for PRs that change no files under `registry/projects/*/rel
 GitHub starts no pull request workflow for a PR the bot opens, so the watcher asks that same
 workflow by number to look at its own maintenance PRs, such as a repository rename.
 A maintainer must approve the ordinary `dco` workflow runs for PRs the bot opens with
-`GITHUB_TOKEN`.
+`GITHUB_TOKEN`, and the `registry-v2` run of a PR that moves the tool's Sunrise pin
+(`bot-pin.yml`).
