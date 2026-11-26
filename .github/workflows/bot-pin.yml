@@ -59,8 +59,7 @@ jobs:
             exit 0
           fi
           cat "$RUNNER_TEMP/chosen" >> "$GITHUB_OUTPUT"
-      # A branch is one proposal for one commit and is never replaced. A run opens the pull
-      # request for a branch an earlier run pushed and could not open. A closed pull request
+      # A branch is one proposal for one commit and is never replaced. A closed pull request
       # was refused and stays closed. The pull request's checks wait for a maintainer's
       # approval, as for every pull request a workflow's token opens (docs/registry-v2.md).
       - name: Propose the pin
@@ -82,18 +81,12 @@ jobs:
             git add -- bot/Cargo.toml bot/Cargo.lock
             git -c core.hooksPath=/dev/null -c user.name='github-actions[bot]' \
               -c user.email='41898282+github-actions[bot]@users.noreply.github.com' commit -q -s -m "$title"
-            cred=(-c credential.helper= -c 'credential.helper=!gh auth git-credential')
-            # A branch a run pushed before it could open the pull request is used only when
-            # it is one commit that changes the two files to exactly what was just generated.
-            # Its base may be an older main.
-            if ! git "${cred[@]}" push origin "HEAD:refs/heads/$branch"; then
-              git "${cred[@]}" fetch --no-tags --depth=2 origin "refs/heads/$branch"
-              files=(bot/Cargo.lock bot/Cargo.toml)
-              if [[ "$(git diff --name-only 'FETCH_HEAD^' FETCH_HEAD)" != "$(printf '%s\n' "${files[@]}")" ]] \
-                || ! git diff --quiet FETCH_HEAD HEAD -- "${files[@]}"; then
-                echo "::error::The branch $branch exists and is not this proposal; delete it to propose the pin again."
-                exit 1
-              fi
+            # A push never replaces a branch. One that exists without the pull request (a run
+            # that stopped between the two, or a branch somebody else made) is not adopted:
+            # this step fails on every tick until a maintainer deletes it.
+            if ! git -c credential.helper= -c 'credential.helper=!gh auth git-credential' push origin "HEAD:refs/heads/$branch"; then
+              echo "::error::Could not push $branch. If the branch exists, delete it to propose the pin again."
+              exit 1
             fi
             pulls=$(gh api "repos/$GITHUB_REPOSITORY/pulls" -X POST -f base=main -f head="$branch" -f title="$title" -f body="The registry offers the game build \`$TAG\` at \`$COMMIT\`, ahead of the commit the registry tool's Sunrise crates are pinned at (\`$PIN\`). This moves the pin and its lockfile entries to that build, so releases made for it are read with its own package reader. Nothing else changes." --jq '[.]')
           fi
