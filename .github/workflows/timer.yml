@@ -101,3 +101,8 @@ jobs:
         if: steps.look.outputs.new > 0 || steps.jars.outputs.named == 'true' || inputs.force
         continue-on-error: true
         run: gh workflow run fit.yml --repo "$GITHUB_REPOSITORY" --ref main
+      # A new game build may be ahead of the Sunrise crates the tool is pinned at.
+      - name: Ask whether the tool's pin should follow
+        if: steps.look.outputs.new > 0 || inputs.force
+        continue-on-error: true
+        run: gh workflow run bot-pin.yml --repo "$GITHUB_REPOSITORY" --ref main

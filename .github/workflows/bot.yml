@@ -18,6 +18,9 @@ on:
       - '.github/workflows/bot.yml'
       - '.github/actions/registry-tool/**'
       - '.github/workflows/publish.yml'
+  # bot-pin.yml starts this on the branch it proposes: GitHub starts no pull_request workflow
+  # for a pull request opened with a workflow's token.
+  workflow_dispatch:
 
 permissions:
   contents: read
