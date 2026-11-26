@@ -38,7 +38,11 @@ jobs:
           # release's signed SDK descriptor names. The build furthest ahead of the pin wins;
           # one behind or beside the pin (an older line's Nightly) never moves it.
           python3 -I .github/registry-v2/fit_store.py read
-          jq -r '.[] | "\(.id) \(.commit)"' registry/fit/builds.json > "$RUNNER_TEMP/builds"
+          # The store is a branch of this repository: its text is checked here before any of
+          # it reaches a command, and a reviewer reads the proposed commit before it merges.
+          jq -r '.[] | if (.id | test("^[a-z0-9][a-z0-9.-]*$")) and (.commit | test("^[0-9a-f]{40}$"))
+            then "\(.id) \(.commit)" else error("builds.json: not a build ID and commit") end' \
+            registry/fit/builds.json > "$RUNNER_TEMP/builds"
           best=0
           while read -r tag commit; do
             [[ "$commit" != "$pin" ]] || continue
