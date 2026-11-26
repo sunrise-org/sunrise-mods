@@ -516,12 +516,13 @@ pub fn stay_listed(base: &Path, head: &Path) -> Result<(), String> {
     }
 }
 
-/// A registration adds one project and its package and nothing else. Under `registry/`, `head`
-/// differs from `base` in exactly two files: the new project's `project.toml`, and its
-/// repository's file, which is new with that one package or keeps its name and its packages in
-/// their order and gains that one. Where the new package stands in the file does not matter.
-/// Every other file keeps its bytes and its executable bit, and no empty directory (what a
-/// submodule checks out as) comes or goes; of `base` only the repository's file is parsed.
+/// A registration adds one or more projects of one repository, with their packages, and nothing
+/// else. Under `registry/`, `head` differs from `base` only in the new projects' `project.toml`
+/// and in that repository's file, which is new with exactly those packages or keeps its name
+/// and its packages in their order and gains exactly those. Where the new packages stand in the
+/// file does not matter. Every other file keeps its bytes and its executable bit, and no empty
+/// directory (what a submodule checks out as) comes or goes; of `base` only the repository's
+/// file is parsed.
 pub fn registration(base: &Path, head: &Path) -> Result<(), String> {
     use std::os::unix::fs::PermissionsExt;
 
@@ -562,6 +563,11 @@ pub fn registration(base: &Path, head: &Path) -> Result<(), String> {
         }
     };
     let (before_files, after_files) = (entries(base)?, entries(head)?);
+    let project_file = |id: &ProjectId| {
+        Path::new("registry/projects")
+            .join(id.as_str())
+            .join("project.toml")
+    };
     let mut changed = BTreeSet::new();
     let paths: BTreeSet<_> = before_files.keys().chain(after_files.keys()).collect();
     for path in paths {
@@ -574,42 +580,40 @@ pub fn registration(base: &Path, head: &Path) -> Result<(), String> {
             changed.insert(path.clone());
         }
     }
-    let added: Vec<_> = after
+    let added: BTreeMap<_, _> = after
         .projects
         .iter()
-        .filter(|(id, _)| {
-            !before_files.contains_key(
-                &Path::new("registry/projects")
-                    .join(id.as_str())
-                    .join("project.toml"),
-            )
-        })
+        .filter(|(id, _)| !before_files.contains_key(&project_file(id)))
         .collect();
-    let [(id, new)] = added.as_slice() else {
-        return Err(format!(
-            "a registration adds exactly one project; this change adds {}",
-            added.len()
-        ));
+    let Some(repository) = added.values().next().map(|new| new.project.repository) else {
+        return Err("a registration adds at least one project; this change adds none".to_owned());
     };
-    let project_file = Path::new("registry/projects")
-        .join(id.as_str())
-        .join("project.toml");
-    let repository_file =
-        Path::new("registry/repositories").join(format!("{}.toml", new.project.repository.get()));
-    if let Some(other) = changed
+    if let Some((id, _)) = added
         .iter()
-        .find(|path| **path != project_file && **path != repository_file)
+        .find(|(_, new)| new.project.repository != repository)
     {
         return Err(format!(
-            "{}: a registration of {} changes only {} and {}",
+            "{}: a registration adds projects of one repository; this one is not in repository {}",
+            project_file(id).display(),
+            repository.get()
+        ));
+    }
+    let repository_file =
+        Path::new("registry/repositories").join(format!("{}.toml", repository.get()));
+    let permitted: BTreeSet<_> = added
+        .keys()
+        .map(|id| project_file(id))
+        .chain([repository_file.clone()])
+        .collect();
+    if let Some(other) = changed.difference(&permitted).next() {
+        return Err(format!(
+            "{}: a registration changes only its new projects' project.toml and {}",
             other.display(),
-            id.as_str(),
-            project_file.display(),
             repository_file.display()
         ));
     }
-    if let Some(file) = [&project_file, &repository_file]
-        .into_iter()
+    if let Some(file) = permitted
+        .iter()
         .find(|file| after_files.get(*file) != Some(&Some(false)))
     {
         return Err(format!(
@@ -617,8 +621,11 @@ pub fn registration(base: &Path, head: &Path) -> Result<(), String> {
             file.display()
         ));
     }
-    let now = &after.repositories[&new.project.repository];
-    let kept = now.package.iter().filter(|package| package.project != **id);
+    let now = &after.repositories[&repository];
+    let kept = now
+        .package
+        .iter()
+        .filter(|package| !added.contains_key(&package.project));
     let unchanged = if before_files.contains_key(&repository_file) {
         let file = base.join(&repository_file);
         let text =
@@ -633,9 +640,8 @@ pub fn registration(base: &Path, head: &Path) -> Result<(), String> {
         Ok(())
     } else {
         Err(format!(
-            "{}: a registration of {} adds its one package and leaves the repository's name and other packages as they were",
-            repository_file.display(),
-            id.as_str()
+            "{}: a registration adds its new packages and leaves the repository's name and other packages as they were",
+            repository_file.display()
         ))
     }
 }

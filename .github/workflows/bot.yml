@@ -67,7 +67,7 @@ jobs:
       # this step reads nothing outside registry/, so whoever merges on this check also requires
       # that the pull request changes no other file. The first parent of the merge commit is main as
       # this run merged it; the base the event names may be older and lack projects main has.
-      - name: A registration adds one project and its package
+      - name: A registration adds projects of one repository and their packages
         if: >-
           github.event_name == 'pull_request'
           && github.event.pull_request.user.login == 'sunrise-sunny[bot]'
