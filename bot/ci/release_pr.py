@@ -136,8 +136,9 @@ def bot(*args):
 
 def verify(out):
     number, sha, branch = dispatch()
-    git("fetch", "--no-tags", "origin", f"refs/pull/{number}/head")
-    require(git("rev-parse", "FETCH_HEAD").decode().strip() == sha, "PR changed during fetch")
+    # By commit, not refs/pull/<n>/head: GitHub sometimes never creates that ref for a PR opened in a burst.
+    # dispatch() has shown this commit is the open PR's head on a release branch of this repository.
+    git("fetch", "--no-tags", "origin", sha)
     base = git("merge-base", "HEAD", sha).decode().strip()
     project = branch["project"]
     root = f"registry/projects/{project}"

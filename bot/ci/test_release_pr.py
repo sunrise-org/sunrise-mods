@@ -51,10 +51,12 @@ class ReleasePRTests(unittest.TestCase):
                         release.verify(self.folder / "out")
                     git.assert_not_called()
         with patch.object(release, "api", return_value=good), patch.object(release, "git") as git:
-            git.side_effect = [b"", SHA.encode(), b"b" * 40,
+            git.side_effect = [b"", b"b" * 40,
                                b"registry/projects/Ab3dE9xQ/releases/1.0.0.toml\x00.github/workflows/evil.yml\x00"]
             with self.assertRaisesRegex(ValueError, "may only add its own release row"):
                 release.verify(self.folder / "out")
+            # The head is fetched as the commit the dispatch named: its refs/pull ref may not exist.
+            self.assertEqual(git.call_args_list[0].args, ("fetch", "--no-tags", "origin", SHA))
 
     def test_a_kind_change_must_remove_every_earlier_release_and_touch_nothing_else(self):
         root = "registry/projects/Ab3dE9xQ"
@@ -70,7 +72,7 @@ class ReleasePRTests(unittest.TestCase):
         )
         for changed, head_rows, message in cases:
             with self.subTest(message=message, changed=changed):
-                calls = [b"", SHA.encode(), b"b" * 40, "".join(name + "\0" for name in changed).encode()]
+                calls = [b"", b"b" * 40, "".join(name + "\0" for name in changed).encode()]
                 if head_rows is not None:
                     calls += [b"", b"".join(entry(name) + b"\0" for name in head_rows)]
                 with patch.object(release, "api", return_value=pull()), patch.object(release, "git") as git:
