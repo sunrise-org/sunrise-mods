@@ -27,6 +27,7 @@ const USAGE: &str = "usage: registry-bot check <checkout>
        registry-bot watch <checkout> <registry-owner/repo> <out>
        registry-bot collection-author <base checkout> <head checkout> <PR author login>
        registry-bot stay-listed <base checkout> <head checkout>
+       registry-bot registration <base checkout> <head checkout>
        registry-bot moved <base checkout> <head checkout> <registry-owner/repo>
        registry-bot verify-release <checkout> <registry-owner/repo> <project> <release.toml> <out>
        registry-bot builds --out <file>
@@ -66,6 +67,9 @@ fn main() -> ExitCode {
             .map_err(|e| e.join("\n")),
         [command, base, head] if command == "stay-listed" => {
             registry::stay_listed(Path::new(base), Path::new(head))
+        }
+        [command, base, head] if command == "registration" => {
+            registry::registration(Path::new(base), Path::new(head))
         }
         [command, base, head, login] if command == "collection-author" => match login.to_str() {
             Some(login) => registry::collection_author(Path::new(base), Path::new(head), login),

@@ -516,6 +516,100 @@ pub fn stay_listed(base: &Path, head: &Path) -> Result<(), String> {
     }
 }
 
+/// A registration adds one project and its package and nothing else. Under `registry/`, `head`
+/// differs from `base` in exactly two files: the new project's `project.toml`, and its
+/// repository's file, which is new with that one package or keeps its name and its packages in
+/// their order and gains that one. Where the new package stands in the file does not matter.
+/// Every other file is compared byte for byte; of `base` only the repository's file is parsed.
+pub fn registration(base: &Path, head: &Path) -> Result<(), String> {
+    let after = load(head).map_err(|e| e.join("\n"))?;
+    let files = |checkout: &Path| {
+        let mut files = BTreeSet::new();
+        let mut dirs = vec![PathBuf::from("registry")];
+        while let Some(dir) = dirs.pop() {
+            let at = checkout.join(&dir);
+            for entry in std::fs::read_dir(&at).map_err(|e| format!("{}: {e}", at.display()))? {
+                let entry = entry.map_err(|e| format!("{}: {e}", at.display()))?;
+                let path = dir.join(entry.file_name());
+                if entry.file_type().is_ok_and(|kind| kind.is_dir()) {
+                    dirs.push(path);
+                } else {
+                    files.insert(path);
+                }
+            }
+        }
+        Ok::<_, String>(files)
+    };
+    let (before_files, after_files) = (files(base)?, files(head)?);
+    let mut changed = BTreeSet::new();
+    for path in before_files.union(&after_files) {
+        let read = |checkout: &Path| {
+            let file = checkout.join(path);
+            std::fs::read(&file).map_err(|e| format!("{}: {e}", file.display()))
+        };
+        if !(before_files.contains(path) && after_files.contains(path))
+            || read(base)? != read(head)?
+        {
+            changed.insert(path.clone());
+        }
+    }
+    let added: Vec<_> = after
+        .projects
+        .iter()
+        .filter(|(id, _)| {
+            !before_files.contains(
+                &Path::new("registry/projects")
+                    .join(id.as_str())
+                    .join("project.toml"),
+            )
+        })
+        .collect();
+    let [(id, new)] = added.as_slice() else {
+        return Err(format!(
+            "a registration adds exactly one project; this change adds {}",
+            added.len()
+        ));
+    };
+    let project_file = Path::new("registry/projects")
+        .join(id.as_str())
+        .join("project.toml");
+    let repository_file =
+        Path::new("registry/repositories").join(format!("{}.toml", new.project.repository.get()));
+    if let Some(other) = changed
+        .iter()
+        .find(|path| **path != project_file && **path != repository_file)
+    {
+        return Err(format!(
+            "{}: a registration of {} changes only {} and {}",
+            other.display(),
+            id.as_str(),
+            project_file.display(),
+            repository_file.display()
+        ));
+    }
+    let now = &after.repositories[&new.project.repository];
+    let kept = now.package.iter().filter(|package| package.project != **id);
+    let unchanged = if before_files.contains(&repository_file) {
+        let file = base.join(&repository_file);
+        let text =
+            std::fs::read_to_string(&file).map_err(|e| format!("{}: {e}", file.display()))?;
+        let before = toml::from_str::<Repository>(&text)
+            .map_err(|error| format!("{}: {error}", file.display()))?;
+        before.name == now.name && kept.eq(&before.package)
+    } else {
+        kept.count() == 0
+    };
+    if unchanged {
+        Ok(())
+    } else {
+        Err(format!(
+            "{}: a registration of {} adds its one package and leaves the repository's name and other packages as they were",
+            repository_file.display(),
+            id.as_str()
+        ))
+    }
+}
+
 /// Refuses a change to a collection by anyone but an owner of every project it lists, before
 /// and after the change. Ownership is read from `base`, so a pull request cannot grant it to
 /// itself. Of `base` only the collection files and the members' `project.toml` are read: the

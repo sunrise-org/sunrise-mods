@@ -63,6 +63,17 @@ jobs:
         if: github.event_name == 'pull_request'
         working-directory: .
         run: target/release/registry-bot stay-listed base .
+      # Only the registry's own registrations. The first parent of the merge commit is main as
+      # this run merged it; the base the event names may be older and lack projects main has.
+      - name: A registration adds one project and its package
+        if: >-
+          github.event_name == 'pull_request'
+          && github.event.pull_request.user.login == 'sunrise-sunny[bot]'
+          && startsWith(github.head_ref, 'register/')
+        working-directory: .
+        run: |
+          git worktree add --detach "$RUNNER_TEMP/first-parent" HEAD^1
+          target/release/registry-bot registration "$RUNNER_TEMP/first-parent" .
       - name: Say whether a moved project keeps its owner
         if: github.event_name == 'pull_request'
         working-directory: .

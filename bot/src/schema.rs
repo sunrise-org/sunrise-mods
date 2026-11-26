@@ -259,7 +259,7 @@ pub struct Repository {
     pub package: Vec<Package>,
 }
 
-#[derive(Deserialize, Serialize)]
+#[derive(Deserialize, Serialize, PartialEq)]
 #[serde(deny_unknown_fields)]
 pub struct Package {
     pub path: PackagePath,
