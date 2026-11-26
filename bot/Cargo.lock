@@ -33,37 +33,10 @@ dependencies = [
 ]
 
 [[package]]
-name = "arrayvec"
-version = "0.7.8"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d3fb67a6e08acf24fdeccbac2cb6ac4305825bd1f117462e0e6f2f193345ad56"
-
-[[package]]
-name = "autocfg"
-version = "1.5.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f2032f911046de80f0a198e0901378627c33f59ea0ac00e363d481118bd70a53"
-
-[[package]]
 name = "base64"
 version = "0.22.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "72b3254f16251a8381aa12e40e3c4d2f0199f8c6508fbecb9d91f575e0fbb8c6"
-
-[[package]]
-name = "bit-set"
-version = "0.10.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "09ec2f926cc3060f09db9ebc5b52823d85268d24bb917e472c0c4bea35780a7d"
-dependencies = [
- "bit-vec",
-]
-
-[[package]]
-name = "bit-vec"
-version = "0.9.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b71798fca2c1fe1086445a7258a4bc81e6e49dcd24c8d0dd9a1e57395b603f51"
 
 [[package]]
 name = "bitflags"
@@ -178,15 +151,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f079e83a288787bcd14a6aea84cee5c87a67c5a3e660c30f557a3d24761b3527"
 
 [[package]]
-name = "codespan-reporting"
-version = "0.13.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "af491d569909a7e4dee0ad7db7f5341fef5c614d5b8ec8cf765732aba3cff681"
-dependencies = [
- "unicode-width",
-]
-
-[[package]]
 name = "constant_time_eq"
 version = "0.6.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -247,12 +211,6 @@ name = "crossbeam-utils"
 version = "0.8.23"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "a31eee39dddec8330830986fcd7625edb5a24ec90ea038215273bbc3adb08ac6"
-
-[[package]]
-name = "crunchy"
-version = "0.2.4"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "460fbee9c2c2f33933d720630a6a0bac33ba7053db5344fac858d4b8952d77d5"
 
 [[package]]
 name = "crypto-common"
@@ -350,12 +308,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "foldhash"
-version = "0.2.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "77ce24cb58228fbb8aa041425bb1050850ac19177686ea6e0f41a70416f56fdb"
-
-[[package]]
 name = "form_urlencoded"
 version = "1.2.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -429,25 +381,10 @@ dependencies = [
 ]
 
 [[package]]
-name = "half"
-version = "2.7.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6ea2d84b969582b4b1864a92dc5d27cd2b77b622a8d79306834f1be5ba20d84b"
-dependencies = [
- "cfg-if",
- "crunchy",
- "num-traits",
- "zerocopy",
-]
-
-[[package]]
 name = "hashbrown"
 version = "0.17.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ed5909b6e89a2db4456e54cd5f673791d7eca6732202bbf2a9cc504fe2f9b84a"
-dependencies = [
- "foldhash",
-]
 
 [[package]]
 name = "heck"
@@ -702,44 +639,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "naga"
-version = "30.0.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a616d2fb8c89516ac2723a581f69d6c18576046bed761bd6b305e5618e6ae130"
-dependencies = [
- "arrayvec",
- "bit-set",
- "bitflags",
- "cfg-if",
- "cfg_aliases",
- "codespan-reporting",
- "half",
- "hashbrown",
- "indexmap",
- "libm",
- "log",
- "naga-types",
- "num-traits",
- "once_cell",
- "rustc-hash 1.1.0",
- "spirv",
- "thiserror",
- "unicode-ident",
-]
-
-[[package]]
-name = "naga-types"
-version = "30.0.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "14474170feb673cfb18b3565111a9869797cc1d290fb9ec969c53f5e1e231c6d"
-dependencies = [
- "hashbrown",
- "indexmap",
- "rustc-hash 1.1.0",
- "thiserror",
-]
-
-[[package]]
 name = "nix"
 version = "0.31.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -756,16 +655,6 @@ name = "num-conv"
 version = "0.2.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "521739c6d2bac4aa25192232afe6841231376b2b26d4d9fae5ecf8ca5772e441"
-
-[[package]]
-name = "num-traits"
-version = "0.2.19"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "071dfc062690e90b734c0b2273ce72ad0ffa95f0c74596bc250dcfd960262841"
-dependencies = [
- "autocfg",
- "libm",
-]
 
 [[package]]
 name = "object"
@@ -994,12 +883,6 @@ dependencies = [
 
 [[package]]
 name = "rustc-hash"
-version = "1.1.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "08d43f7aa6b08d49f382cde6a7982047c3426db949b1424bc4b7ec9ae12c6ce2"
-
-[[package]]
-name = "rustc-hash"
 version = "2.1.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "6b1e7f9a428571be2dc5bc0505c13fb6bf936822b894ec87abf8a08a4e51742d"
@@ -1152,15 +1035,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "023a211cb3138dbc438680b32560ad89f699977624c9f8dbb95a47d5b4c07dd3"
 
 [[package]]
-name = "spirv"
-version = "0.4.0+sdk-1.4.341.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d9571ea910ebd84c86af4b3ed27f9dbdc6ad06f17c5f96146b2b671e2976744f"
-dependencies = [
- "bitflags",
-]
-
-[[package]]
 name = "stable_deref_trait"
 version = "1.2.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1182,7 +1056,7 @@ dependencies = [
 [[package]]
 name = "sunrise-assets"
 version = "0.1.0"
-source = "git+https://github.com/sunrise-org/sunrise.git?rev=c3c9aa0b07fbc7f2aa637b87847fe315258a6bfc#c3c9aa0b07fbc7f2aa637b87847fe315258a6bfc"
+source = "git+https://github.com/sunrise-org/sunrise.git?rev=ba1f24e4ad41246b558230aa665539dc768b1287#ba1f24e4ad41246b558230aa665539dc768b1287"
 dependencies = [
  "flate2",
  "log",
@@ -1195,13 +1069,13 @@ dependencies = [
 [[package]]
 name = "sunrise-core"
 version = "0.1.0"
-source = "git+https://github.com/sunrise-org/sunrise.git?rev=c3c9aa0b07fbc7f2aa637b87847fe315258a6bfc#c3c9aa0b07fbc7f2aa637b87847fe315258a6bfc"
+source = "git+https://github.com/sunrise-org/sunrise.git?rev=ba1f24e4ad41246b558230aa665539dc768b1287#ba1f24e4ad41246b558230aa665539dc768b1287"
 dependencies = [
  "crc-fast",
  "crc32fast",
  "libm",
  "md-5",
- "rustc-hash 2.1.3",
+ "rustc-hash",
  "safe_arch",
  "serde",
  "serde_json",
@@ -1212,7 +1086,7 @@ dependencies = [
 [[package]]
 name = "sunrise-dependency-rule"
 version = "0.1.0"
-source = "git+https://github.com/sunrise-org/sunrise.git?rev=c3c9aa0b07fbc7f2aa637b87847fe315258a6bfc#c3c9aa0b07fbc7f2aa637b87847fe315258a6bfc"
+source = "git+https://github.com/sunrise-org/sunrise.git?rev=ba1f24e4ad41246b558230aa665539dc768b1287#ba1f24e4ad41246b558230aa665539dc768b1287"
 dependencies = [
  "semver",
 ]
@@ -1220,7 +1094,7 @@ dependencies = [
 [[package]]
 name = "sunrise-game-discovery"
 version = "0.1.0"
-source = "git+https://github.com/sunrise-org/sunrise.git?rev=c3c9aa0b07fbc7f2aa637b87847fe315258a6bfc#c3c9aa0b07fbc7f2aa637b87847fe315258a6bfc"
+source = "git+https://github.com/sunrise-org/sunrise.git?rev=ba1f24e4ad41246b558230aa665539dc768b1287#ba1f24e4ad41246b558230aa665539dc768b1287"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -1232,7 +1106,7 @@ dependencies = [
 [[package]]
 name = "sunrise-jar-fetch"
 version = "0.1.0"
-source = "git+https://github.com/sunrise-org/sunrise.git?rev=c3c9aa0b07fbc7f2aa637b87847fe315258a6bfc#c3c9aa0b07fbc7f2aa637b87847fe315258a6bfc"
+source = "git+https://github.com/sunrise-org/sunrise.git?rev=ba1f24e4ad41246b558230aa665539dc768b1287#ba1f24e4ad41246b558230aa665539dc768b1287"
 dependencies = [
  "serde",
  "serde_json",
@@ -1242,7 +1116,7 @@ dependencies = [
 [[package]]
 name = "sunrise-mod-api-gen"
 version = "0.1.0"
-source = "git+https://github.com/sunrise-org/sunrise.git?rev=c3c9aa0b07fbc7f2aa637b87847fe315258a6bfc#c3c9aa0b07fbc7f2aa637b87847fe315258a6bfc"
+source = "git+https://github.com/sunrise-org/sunrise.git?rev=ba1f24e4ad41246b558230aa665539dc768b1287#ba1f24e4ad41246b558230aa665539dc768b1287"
 dependencies = [
  "heck",
  "prettyplease",
@@ -1261,7 +1135,7 @@ dependencies = [
 [[package]]
 name = "sunrise-mod-api-macros"
 version = "0.1.0"
-source = "git+https://github.com/sunrise-org/sunrise.git?rev=c3c9aa0b07fbc7f2aa637b87847fe315258a6bfc#c3c9aa0b07fbc7f2aa637b87847fe315258a6bfc"
+source = "git+https://github.com/sunrise-org/sunrise.git?rev=ba1f24e4ad41246b558230aa665539dc768b1287#ba1f24e4ad41246b558230aa665539dc768b1287"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -1271,7 +1145,7 @@ dependencies = [
 [[package]]
 name = "sunrise-mod-package"
 version = "0.1.0"
-source = "git+https://github.com/sunrise-org/sunrise.git?rev=c3c9aa0b07fbc7f2aa637b87847fe315258a6bfc#c3c9aa0b07fbc7f2aa637b87847fe315258a6bfc"
+source = "git+https://github.com/sunrise-org/sunrise.git?rev=ba1f24e4ad41246b558230aa665539dc768b1287#ba1f24e4ad41246b558230aa665539dc768b1287"
 dependencies = [
  "base64",
  "cap-std",
@@ -1290,7 +1164,6 @@ dependencies = [
  "sunrise-mod-source",
  "sunrise-mod-surface",
  "sunrise-mod-vocab",
- "sunrise-shader-api",
  "tar",
  "toml",
  "url",
@@ -1303,7 +1176,7 @@ dependencies = [
 [[package]]
 name = "sunrise-mod-runtime"
 version = "0.1.0"
-source = "git+https://github.com/sunrise-org/sunrise.git?rev=c3c9aa0b07fbc7f2aa637b87847fe315258a6bfc#c3c9aa0b07fbc7f2aa637b87847fe315258a6bfc"
+source = "git+https://github.com/sunrise-org/sunrise.git?rev=ba1f24e4ad41246b558230aa665539dc768b1287#ba1f24e4ad41246b558230aa665539dc768b1287"
 dependencies = [
  "sunrise-core",
 ]
@@ -1311,7 +1184,7 @@ dependencies = [
 [[package]]
 name = "sunrise-mod-source"
 version = "0.1.0"
-source = "git+https://github.com/sunrise-org/sunrise.git?rev=c3c9aa0b07fbc7f2aa637b87847fe315258a6bfc#c3c9aa0b07fbc7f2aa637b87847fe315258a6bfc"
+source = "git+https://github.com/sunrise-org/sunrise.git?rev=ba1f24e4ad41246b558230aa665539dc768b1287#ba1f24e4ad41246b558230aa665539dc768b1287"
 dependencies = [
  "ignore",
  "proc-macro2",
@@ -1324,7 +1197,7 @@ dependencies = [
 [[package]]
 name = "sunrise-mod-surface"
 version = "0.1.0"
-source = "git+https://github.com/sunrise-org/sunrise.git?rev=c3c9aa0b07fbc7f2aa637b87847fe315258a6bfc#c3c9aa0b07fbc7f2aa637b87847fe315258a6bfc"
+source = "git+https://github.com/sunrise-org/sunrise.git?rev=ba1f24e4ad41246b558230aa665539dc768b1287#ba1f24e4ad41246b558230aa665539dc768b1287"
 dependencies = [
  "libc",
  "proc-macro2",
@@ -1337,7 +1210,7 @@ dependencies = [
 [[package]]
 name = "sunrise-mod-vocab"
 version = "0.1.0"
-source = "git+https://github.com/sunrise-org/sunrise.git?rev=c3c9aa0b07fbc7f2aa637b87847fe315258a6bfc#c3c9aa0b07fbc7f2aa637b87847fe315258a6bfc"
+source = "git+https://github.com/sunrise-org/sunrise.git?rev=ba1f24e4ad41246b558230aa665539dc768b1287#ba1f24e4ad41246b558230aa665539dc768b1287"
 dependencies = [
  "bytemuck",
  "glam",
@@ -1353,25 +1226,10 @@ dependencies = [
 [[package]]
 name = "sunrise-release-sign"
 version = "0.1.0"
-source = "git+https://github.com/sunrise-org/sunrise.git?rev=c3c9aa0b07fbc7f2aa637b87847fe315258a6bfc#c3c9aa0b07fbc7f2aa637b87847fe315258a6bfc"
+source = "git+https://github.com/sunrise-org/sunrise.git?rev=ba1f24e4ad41246b558230aa665539dc768b1287#ba1f24e4ad41246b558230aa665539dc768b1287"
 dependencies = [
  "base64",
  "ring",
-]
-
-[[package]]
-name = "sunrise-shader-api"
-version = "0.1.0"
-source = "git+https://github.com/sunrise-org/sunrise.git?rev=c3c9aa0b07fbc7f2aa637b87847fe315258a6bfc#c3c9aa0b07fbc7f2aa637b87847fe315258a6bfc"
-dependencies = [
- "bytemuck",
- "naga",
- "png",
- "serde",
- "serde_json",
- "sha2",
- "toml",
- "zip",
 ]
 
 [[package]]
@@ -1428,26 +1286,6 @@ dependencies = [
  "once_cell",
  "rustix",
  "windows-sys 0.61.2",
-]
-
-[[package]]
-name = "thiserror"
-version = "2.0.21"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "09e52cb86a36cede5cb101bf8908837b3e4c6e5e59fe7fd85c23fb56200d189e"
-dependencies = [
- "thiserror-impl",
-]
-
-[[package]]
-name = "thiserror-impl"
-version = "2.0.21"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "fe5197923287db20a58125f0bc85c062f7f2c892de97b18c356f9efb14b28524"
-dependencies = [
- "proc-macro2",
- "quote",
- "syn 3.0.10",
 ]
 
 [[package]]
@@ -1561,12 +1399,6 @@ checksum = "75cd3fb03d5288b3ba9a1ee103ac7e9cbb59f0b03d64f8ddfcc04dd42758a85d"
 dependencies = [
  "tinyvec",
 ]
-
-[[package]]
-name = "unicode-width"
-version = "0.2.3"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ca718471876992059f251e33aafc334346ada08042b7661dd1fe313a9bced557"
 
 [[package]]
 name = "unicode_names2"
