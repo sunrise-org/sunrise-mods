@@ -7,3 +7,4 @@ repository = 1468300372
 path = "mcwbridges"
 workflow = "sunrise-org/sunrise-mods/.github/workflows/release.yml"
 registered = "2026-11-24"
+paused = true
