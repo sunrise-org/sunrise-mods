@@ -1,0 +1,24 @@
+version = "0.1.6"
+kind = "native-mod"
+tag = "vanilla_bestiary/v0.1.6"
+published = "2026-11-27T19:00:23Z"
+sunrise = "nightly-2026-11-20-9425651"
+workflow = "sunrise-org/sunrise-mods/.github/workflows/release.yml@refs/tags/release-v1"
+repository = 1449407242
+
+[file]
+url = "https://github.com/EAnathos/sunrise-creatures/releases/download/vanilla_bestiary/v0.1.6/vanilla_bestiary-0.1.6.smod"
+size = 52275
+sha256 = "8f78d31a7b81e5918862ad168d89a88e8e4200fecae0a7babdd771bbbbf9dd78"
+attestation = "https://github.com/EAnathos/sunrise-creatures/releases/download/vanilla_bestiary/v0.1.6/vanilla_bestiary-0.1.6.smod.sigstore.json"
+
+[page]
+url = "https://github.com/EAnathos/sunrise-creatures/releases/download/vanilla_bestiary/v0.1.6/vanilla_bestiary-0.1.6.page.tar"
+size = 84480
+sha256 = "1c304dd47e8a59b1ccd00451eacc250c8208b5fa0792a9c1e4690d24da71104c"
+attestation = "https://github.com/EAnathos/sunrise-creatures/releases/download/vanilla_bestiary/v0.1.6/vanilla_bestiary-0.1.6.page.tar.sigstore.json"
+
+[[dependencies]]
+mod = "creature"
+version = "^0.4.4"
+required = true
