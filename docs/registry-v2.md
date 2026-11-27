@@ -580,3 +580,36 @@ workflow by number to look at its own maintenance PRs, such as a repository rena
 A maintainer must approve the ordinary `dco` workflow runs for PRs the bot opens with
 `GITHUB_TOKEN`, and the `registry-v2` run of a PR that moves the tool's Sunrise pin
 (`bot-pin.yml`).
+
+## Registration retries
+
+`register-issue.yml` asks the registry service about a `Register ` issue on the opener's own open, edit
+or reopen, and on `workflow_dispatch` with the issue's number. A run's title carries the number
+(`Registration of issue N`, `Registration retry for issue N`); GitHub's history of those runs is the only
+count. The service reads the issue's live opener, so a dispatch registers that account, never the
+dispatcher, and refuses an issue that is closed, not titled `Register `, or whose opener is suspended. The run
+makes one call. It never retries by itself, and an Actions "re-run" is refused.
+
+A run answers on the issue with one comment of the bot's. Its first line is a marker
+(`<!-- registry-v2-registration run=<run id> state=retry|done|exhausted -->`); only the bot's own comment
+counts. A registration, `already_registered`, `already_pending` or another definite answer is `done`. A typed
+`{"retry": …}` answer (rate, busy, GitHub, registry head) is `retry` and the run stays green. No JSON, an edge's
+page, a bare 403, a connection failure or JSON of another shape is also `retry` but the run is **red**, so it is
+seen. The comment never asks the author to edit unless the answer was a problem the author can fix.
+
+`timer.yml` has a `registrations` job on every run. For each open `Register ` issue that began or ran in the last
+day it takes the opener's newest own event run as the start of the cycle (an edit or reopening by the opener starts
+a new one; a skipped run or someone else's edit starts nothing) and counts the `workflow_dispatch` runs after it,
+from whoever started them. It then:
+
+- stops when the newest run left a `done` marker, or ended green without a marker (a closed issue);
+- waits while the newest run is queued or running, up to 20 minutes, so an issue has one run at a time;
+- waits when the last dispatch is under eight minutes old, so two timer runs close together count one interval;
+- starts one more run when the newest run was a typed retry, red, cancelled, timed out or lost before it
+  commented (and then writes the status comment itself), up to five after the opener's event;
+- after the fifth, writes `exhausted` into the comment and goes red once.
+
+A maintainer recovers an exhausted or stuck issue with
+`gh workflow run register-issue.yml -R sunrise-org/sunrise-mods --ref main -f issue=N`; it counts as an
+attempt but never starts a timer retry after the fifth. The look's red runs (an exhausted issue, an unreadable
+history) are the maintainers' notice; no other job waits for `registrations`.

@@ -9,6 +9,10 @@ name: registry timer
 # and starts the judging job when it has. That job owns the offered-build policy; this one only
 # compares names. That look is outside the chain's concurrency group, so it happens when the run
 # starts, whatever the chain is doing.
+#
+# Each run also looks at the open Register issues and starts register-issue.yml again for one the registry has
+# not answered (docs/registry-v2.md, "Registration retries"). It is a job of its own: nothing else here waits for it,
+# and it is red only for an issue that needs a maintainer or when the look itself failed.
 
 on:
   push:
@@ -65,6 +69,29 @@ jobs:
       - name: Start the next run
         if: ${{ !cancelled() }}
         run: gh workflow run timer.yml --repo "$GITHUB_REPOSITORY" --ref main
+
+  # One look per tick for the registration retry. The script keeps the count in GitHub's run history, and
+  # refuses a second dispatch for an issue within one timer interval, so a run started by a push, a schedule
+  # event or by hand cannot count the same interval twice.
+  registrations:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    concurrency:
+      group: registry-registration-retry
+      cancel-in-progress: false
+    permissions:
+      actions: write # starts register-issue.yml
+      contents: read
+      issues: write # the bot's one status comment on an issue
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+      - name: Start a registration retry for each issue the registry has not answered
+        run: python3 -I bot/ci/release_pr.py registration-retry
 
   builds:
     if: github.ref == 'refs/heads/main'

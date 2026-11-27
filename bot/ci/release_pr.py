@@ -1,4 +1,4 @@
-"""Privileged release PR publication/reporting and read-only PR shape checks.
+"""Privileged release PR publication/reporting, read-only PR shape checks and the registration retry.
 
 Never checks out a PR or runs code from one. PR inputs go to Git/GitHub as data.
 """
@@ -11,9 +11,12 @@ import shutil
 import subprocess
 import sys
 import tempfile
+import time
 import tomllib
 import zipfile
+from datetime import datetime, timezone
 from pathlib import Path
+from urllib.parse import quote
 
 PROJECT = r"[A-Za-z0-9]{8}"
 # Rust's semver parser owns the version; here constrain independent Git/path inputs.
@@ -494,9 +497,189 @@ def report(folder):
         set_status(sha, "success" if success else "failure", description)
 
 
+# The registration retry. register-issue.yml asks the registry about a Register issue and leaves what it learned in one
+# comment of the bot's; timer.yml starts one more run for an issue whose newest run left it unanswered, at most
+# REGISTRATION_RETRIES times after the opener's own event. GitHub's history of the workflow's runs is the only count.
+REGISTER_WORKFLOW = "register-issue.yml"
+ISSUE_NUMBER = re.compile(r"[1-9][0-9]*", re.ASCII)
+# The workflow's `run-name`: the one place the issue's number is machine-readable on a run.
+REGISTRATION_RUN = re.compile(r"Registration (?:of|retry for) issue (?P<issue>[1-9][0-9]*)", re.ASCII)
+# What the run that wrote the comment learned: `retry` (ask again), `done` (a definite answer) or `exhausted`.
+REGISTRATION_MARKER = re.compile(
+    r"<!-- registry-v2-registration run=(?P<run>[0-9]+) state=(?P<state>retry|done|exhausted) -->", re.ASCII)
+REGISTRATION_CODE = re.compile(r"[a-z_]{1,40}", re.ASCII)
+REGISTRATION_RETRIES = 5
+# Timer runs are about ten minutes apart. A second look inside this is the same tick and must not count again.
+REGISTRATION_INTERVAL = 480
+# A run unfinished after this is a lost worker (its job stops itself at five minutes).
+REGISTRATION_STALE = 1200
+# The timer looks only at issues that began or ran within this; a definite answer is not looked at again.
+REGISTRATION_WINDOW = 86400
+FORM = "https://playsunrise.net/mods/submit"
+REGISTRATION_PROBLEMS = {
+    "repository_url": "The Repository field must hold one link of the form `https://github.com/<owner>/<repository>`.",
+    "standing": "This account cannot register a mod right now.",
+    "repository_missing": "GitHub could not find the repository. Check the link, and that the repository is public.",
+    "repository_private": "The repository must be public.",
+    "repository_admin": "An issue can register only a repository that belongs to the personal account that opened it. "
+                        f"For a repository of an organisation, or of another account, an admin of the repository registers it with the form at {FORM}.",
+}
+REGISTRATION_REASONS = {
+    "rate": "this account has used its checks for the hour",
+    "busy": "the registry is checking other requests",
+    "github": "GitHub did not answer",
+    "registry_changed": "the registry changed while the request was checked",
+}
+REGISTRATION_UNANSWERED = ("The registry did not answer this check. It checks again by itself, up to "
+                           f"{REGISTRATION_RETRIES} more times, ten minutes apart; maintainers have been told. There is nothing for you to change.")
+REGISTRATION_EXHAUSTED = (f"The registry could not check this repository after the first try and {REGISTRATION_RETRIES} more. "
+                          "Automatic retries have stopped and maintainers have been told. There is nothing for you to change.")
+
+
+def registration_reply(status, answer):
+    """What the registry's answer means, as (state, comment text or None, whether the run is red).
+
+    The only place the answer's JSON is read. A typed answer is explained; anything else (no connection, an edge's page,
+    a bare 403, JSON of another shape) is unanswered and red, so it is seen, and is retried.
+    """
+    match answer:
+        case {"registration": int() as number} if status == "200" and type(number) is int and number > 0:
+            return "done", (f"The repository passed the registry's checks: its registration is #{number}, which closes this issue "
+                            "when it merges. Registering lists nothing by itself: a project appears after its first release "
+                            "through `cargo sunrise-mod release` is reviewed and merged."), False
+        case {"problem": str() as code} if status.startswith("4") and REGISTRATION_CODE.fullmatch(code):
+            if code == "issue":
+                # Closed, retitled or not a registration issue: nothing to say on it.
+                return "done", None, False
+            if code == "already_registered":
+                return "done", "This repository is already registered. Nothing more is needed.", False
+            if code == "already_pending":
+                return "done", "This repository already has an open registration pull request. Nothing more is needed.", False
+            if code in REGISTRATION_PROBLEMS:
+                return "done", (f"This repository could not be registered. {REGISTRATION_PROBLEMS[code]}\n\n"
+                                f"After fixing it, edit this issue to have it checked again, or use the form at {FORM}."), False
+            return "done", f"The registry refused this request (`{code}`). Maintainers have been told.", True
+        case {"retry": str() as code} if status == "200" and REGISTRATION_CODE.fullmatch(code):
+            reason = f" ({REGISTRATION_REASONS[code]})" if code in REGISTRATION_REASONS else ""
+            return "retry", (f"The registry could not finish checking this repository yet{reason}. It checks again by itself, "
+                             f"up to {REGISTRATION_RETRIES} more times, ten minutes apart. There is nothing for you to change."), False
+    return "retry", REGISTRATION_UNANSWERED, True
+
+
+def upsert_registration_comment(issue, run, state, text):
+    """The issue's one status comment of the bot's: written once, then edited. Only the bot's own comment counts."""
+    body = f"<!-- registry-v2-registration run={run} state={state} -->\n🤖 Agent: {text}\n"
+    existing = next((c for c in rows(f"issues/{issue}/comments?per_page=100")
+                     if c["user"]["login"] == BOT and REGISTRATION_MARKER.match(c["body"])), None)
+    if existing:
+        api(f"issues/comments/{existing['id']}", "-X", "PATCH", data={"body": body})
+    else:
+        api(f"issues/{issue}/comments", "-X", "POST", data={"body": body})
+
+
+def registration_answer():
+    """The register-issue run's last step: say what the registry answered, and go red when it gave no usable answer."""
+    issue, run = os.environ["ISSUE"], os.environ["GITHUB_RUN_ID"]
+    require(ISSUE_NUMBER.fullmatch(issue), "the issue is not a positive number")
+    status = os.environ["STATUS"]
+    if not re.fullmatch(r"[0-9]{3}", status):
+        status = "000"
+    try:
+        with open(os.environ["ANSWER"], "rb") as stream:
+            answer = json.loads(stream.read(65536))
+    except (OSError, ValueError):
+        answer = None
+    state, text, red = registration_reply(status, answer)
+    print(f"The registry answered {status}: {state}{', unexplained' if red else ''}")
+    if text:
+        upsert_registration_comment(issue, run, state, text)
+    require(not red, f"the registry's answer ({status}) is not one the workflow understands")
+
+
+def registration_plan(issue, runs, comments, now):
+    """What the timer does for one open Register issue, from GitHub's history of it.
+
+    Returns (action, newest, answered). `action` is "stop" (answered, or never ours to retry), "wait", "dispatch" or
+    "exhausted"; `newest` is the latest run of the current cycle (None when nothing ran) and `answered` says whether
+    that run left its marker on the bot's comment. A cycle starts at the opener's newest own event run (a skipped run, or
+    someone else's edit, starts nothing); every dispatch after it is one attempt, whoever started it.
+    """
+    runs = [run for run in runs if run["conclusion"] != "skipped"]
+    key = lambda run: (run["created_at"], run["id"])
+    opener = issue["user"]["id"]
+    original = max((run for run in runs if run["event"] == "issues" and (run["actor"] or {}).get("id") == opener),
+                   key=key, default=None)
+    since = original["created_at"] if original else issue["created_at"]
+    dispatched = sorted((run for run in runs if run["event"] == "workflow_dispatch" and run["created_at"] > since), key=key)
+    newest = dispatched[-1] if dispatched else original
+    ours = [comment for comment in comments if comment["user"]["login"] == BOT]
+    if newest is None:
+        # Nothing ran: the event never arrived, unless the workflow from before this one answered the issue.
+        return ("stop" if ours else "dispatch"), None, False
+    marker = next((found for comment in ours if (found := REGISTRATION_MARKER.match(comment["body"]))), None)
+    answered = marker is not None and int(marker["run"]) == newest["id"]
+    if newest["status"] != "completed":
+        if now - moment(newest["created_at"]) < REGISTRATION_STALE:
+            return "wait", newest, answered
+    elif (answered and marker["state"] != "retry") or (newest["conclusion"] == "success" and not answered):
+        # A definite answer, or a green run that had nothing to say (a closed issue).
+        return "stop", newest, answered
+    if len(dispatched) >= REGISTRATION_RETRIES:
+        return "exhausted", newest, answered
+    if dispatched and now - moment(dispatched[-1]["created_at"]) < REGISTRATION_INTERVAL:
+        return "wait", newest, answered
+    return "dispatch", newest, answered
+
+
+def moment(text):
+    return datetime.fromisoformat(text).timestamp()
+
+
+def registration_retry():
+    """The timer's look at the open Register issues. One dispatch per issue per call at most; a failure on one issue
+    does not hide the others, and the call is red for each that needs maintainers (an exhausted issue, once)."""
+    repo, now = os.environ["GITHUB_REPOSITORY"], time.time()
+    cutoff = datetime.fromtimestamp(now - REGISTRATION_WINDOW, timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+    history = collections.defaultdict(list)
+    for page in api(f"actions/workflows/{REGISTER_WORKFLOW}/runs?per_page=100&created={quote('>=' + cutoff)}",
+                    "--paginate", "--slurp"):
+        for run in page["workflow_runs"]:
+            titled = REGISTRATION_RUN.fullmatch(run["display_title"])
+            if titled:
+                history[int(titled["issue"])].append(run)
+    problems = []
+    for issue in rows("issues?state=open&per_page=100"):
+        number = issue["number"]
+        if "pull_request" in issue or not issue["title"].startswith("Register "):
+            continue
+        if number not in history and now - moment(issue["created_at"]) > REGISTRATION_WINDOW:
+            continue
+        try:
+            action, newest, answered = registration_plan(issue, history[number], rows(f"issues/{number}/comments?per_page=100"), now)
+            if action != "stop":
+                print(f"#{number}: {action}")
+            if action == "dispatch":
+                if newest and not answered:
+                    # The run was lost before it could say anything.
+                    upsert_registration_comment(number, newest["id"], "retry", REGISTRATION_UNANSWERED)
+                gh("workflow", "run", REGISTER_WORKFLOW, "--repo", repo, "--ref", "main", "-f", f"issue={number}")
+            elif action == "exhausted":
+                upsert_registration_comment(number, newest["id"], "exhausted", REGISTRATION_EXHAUSTED)
+                problems.append(f"#{number} got no answer from the registry after the first try and {REGISTRATION_RETRIES} more")
+        except (OSError, ValueError) as error:
+            problems.append(f"#{number}: {error}")
+    for problem in problems:
+        print(f"::error::{safe(problem)}")
+    require(not problems, "; ".join(problems))
+
+
 if __name__ == "__main__":
     try:
         match sys.argv[1:]:
+            case ["registration-answer"]:
+                registration_answer()
+            case ["registration-retry"]:
+                registration_retry()
             case ["publish", folder]:
                 publish(Path(folder))
             case ["verify", folder]:
@@ -508,6 +691,6 @@ if __name__ == "__main__":
             case ["report", folder]:
                 report(Path(folder))
             case _:
-                raise ValueError("usage: release_pr.py pending|check-registration, or publish|verify|report <folder>")
+                raise ValueError("usage: release_pr.py pending|check-registration|registration-answer|registration-retry, or publish|verify|report <folder>")
     except (OSError, ValueError, KeyError, TypeError, subprocess.CalledProcessError, zipfile.BadZipFile) as error:
         sys.exit("registry release: " + safe(error))
