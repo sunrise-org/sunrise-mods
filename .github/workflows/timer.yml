@@ -9,6 +9,10 @@ name: registry timer
 # and starts the judging job when it has. That job owns the offered-build policy; this one only
 # compares names. That look is outside the chain's concurrency group, so it happens when the run
 # starts, whatever the chain is doing.
+#
+# Each run also starts register-issue.yml again for an open Register issue the registry has not answered
+# (docs/registry-v2.md, "Registration retries"). That is one step of `tick`, so the chain's concurrency group
+# spaces the retries a tick apart. A failure of it makes the run red and stops no other step.
 
 on:
   push:
@@ -36,6 +40,8 @@ jobs:
       cancel-in-progress: false
     permissions:
       actions: write
+      contents: read # this repository's own script, for the registration retry
+      issues: write # the registration retry's status comment on an issue
     env:
       GH_TOKEN: ${{ github.token }}
     steps:
@@ -59,6 +65,17 @@ jobs:
           if [[ -z "$last" ]] || (( $(date +%s) - $(date -d "$last" +%s) >= 1500 )); then
             gh workflow run publish.yml --repo "$GITHUB_REPOSITORY" --ref main
           fi
+      # An open Register issue whose newest run ended without a definite answer is checked again, one dispatch per
+      # tick, at most five after the opener's own event. The step is red for an issue that needs a maintainer and
+      # when it could not read GitHub's history; every step after it runs either way.
+      - id: checkout
+        if: ${{ !cancelled() }}
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+      - name: Start a registration retry for each Register issue the registry has not answered
+        if: ${{ !cancelled() && steps.checkout.outcome == 'success' }}
+        run: python3 -I bot/ci/registration_retry.py retry
       - name: Wait ten minutes
         if: ${{ !cancelled() }}
         run: sleep 600
