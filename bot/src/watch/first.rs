@@ -6,7 +6,7 @@ use std::collections::BTreeMap;
 use serde::Deserialize;
 
 use super::*;
-use crate::schema::{CalendarDate, Login, Project};
+use crate::schema::{CalendarDate, Login, Project, Registrant};
 
 struct FirstCandidate<'a> {
     namespace: Option<ModId>,
@@ -175,10 +175,23 @@ impl Watch<'_, '_> {
         releases: &[github::Release],
         summary: &mut String,
     ) {
+        // A repository row from before registrants were recorded cannot name an owner. Its old-format
+        // streams (no `release.json` asset) stay unreported, so they cannot flood the summary; a stream
+        // that carries one is a signed first release, and is reported if it cannot be taken.
+        let legacy = registrants(self.registry, live.id).is_err();
         for first in first_candidates(self.registry, live.id, releases) {
             let candidate = &first.candidate;
             let label = &candidate.release.tag_name;
             let result = (|| {
+                if legacy
+                    && !candidate
+                        .release
+                        .assets
+                        .iter()
+                        .any(|asset| asset.name.ends_with(".release.json"))
+                {
+                    return Ok(false);
+                }
                 let mod_id = asset_mod_id(&first).map_err(|e| e.to_string())?;
                 // An open or refused PR already holds this exact release: the live release names
                 // the same repository ID, tag and package SHA-256 as its row.
@@ -211,6 +224,7 @@ impl Watch<'_, '_> {
                 {
                     return Ok(false);
                 }
+                registrants(self.registry, live.id).map_err(|e| e.to_string())?;
                 let assets =
                     signed_page(&request, work.path(), None, package).map_err(|e| e.to_string())?;
                 let (row, payload) = prepared(
@@ -272,23 +286,32 @@ fn first_project(
     Ok(project)
 }
 
+/// The accounts that registered the repository: the only owners a new project can have. A row
+/// without any is not given a fallback owner; a reviewed change to the row has to record one.
+fn registrants(
+    registry: &Registry,
+    repository: RepositoryId,
+) -> Result<&[Registrant], &'static str> {
+    let Some(repo) = registry.repositories.get(&repository) else {
+        return Err("first-release repository is not registered");
+    };
+    if repo.registrant.is_empty() {
+        return Err(
+            "signed first release cannot be taken: the repository's registry row records no registrant to own the new project; a reviewed registry change must record one",
+        );
+    }
+    Ok(&repo.registrant)
+}
+
 fn owners(
     registry: &Registry,
     repository: RepositoryId,
     github: &dyn GitHub,
 ) -> Result<Vec<Login>, Observation> {
-    let Some(repo) = registry.repositories.get(&repository) else {
-        return Err(Observation::Ineligible(
-            "first-release repository is not registered".into(),
-        ));
-    };
-    if repo.registrant.is_empty() {
-        return Err(Observation::Ineligible(
-            "first-release repository has no registrants".into(),
-        ));
-    }
+    let registrants =
+        registrants(registry, repository).map_err(|e| Observation::Ineligible(e.into()))?;
     let mut logins = BTreeMap::new();
-    for registrant in &repo.registrant {
+    for registrant in registrants {
         let account = github.account(registrant.id)?;
         if account.id != registrant.id {
             return Err(Observation::Ineligible(

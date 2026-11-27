@@ -219,18 +219,16 @@ pub fn run(checkout: &Path, out: &Path, github: &dyn GitHub) -> Result<(), Strin
                 }
             }
         }
-        if !repo.registrant.is_empty() {
-            first::Watch {
-                registry: &registry,
-                branches: &branches,
-                out,
-                github,
-                workflow: &workflow,
-                categories: &categories,
-                builds: &mut builds,
-            }
-            .observe(&live, &releases, &mut summary);
+        first::Watch {
+            registry: &registry,
+            branches: &branches,
+            out,
+            github,
+            workflow: &workflow,
+            categories: &categories,
+            builds: &mut builds,
         }
+        .observe(&live, &releases, &mut summary);
     }
     if summary == "### Registry release watcher\n\n" {
         summary.push_str("No new releases to propose.\n");
@@ -1376,6 +1374,74 @@ mod tests {
             assert_eq!(downloads == 0, skipped, "{downloads} downloads");
             assert_eq!(summary.is_empty(), skipped, "{summary}");
         }
+    }
+
+    #[test]
+    fn a_signed_first_release_in_a_row_without_registrants_is_reported_not_skipped() {
+        let mut registry = load(Path::new(FIXTURE)).unwrap();
+        let id: RepositoryId = serde_json::from_str("123456789").unwrap();
+        assert!(registry.repositories[&id].registrant.is_empty());
+        let key =
+            registry::first_project_id(id, &PackagePath::parse("mods/shared".into()).unwrap())
+                .unwrap();
+        let stream = |signed: bool| {
+            let mut release = live_release("1.2.0", "2026-11-23T13:00:00Z", None);
+            release.tag_name = "fresh/v1.2.0".into();
+            release
+                .assets
+                .retain(|asset| !asset.name.contains(".page.tar"));
+            for asset in &mut release.assets {
+                asset.name = asset.name.replace("wayfinder-1.2.0", "fresh-1.2.0");
+                asset.browser_download_url = format!(
+                    "https://github.com/{CURRENT}/releases/download/fresh/v1.2.0/{}",
+                    asset.name
+                );
+            }
+            if signed {
+                with_release_json(&mut release, "fresh", Recorded::default().json("fresh"));
+            }
+            release
+        };
+        let observe = |registry: &Registry, handled: BTreeSet<String>, release| {
+            let github = Recorded::default();
+            let branches = github::ReleaseBranches {
+                handled,
+                ..Default::default()
+            };
+            let live = github.repository(Repo::Registered(id)).unwrap();
+            let mut builds = Builds::new(&github).unwrap();
+            let mut summary = String::new();
+            first::Watch {
+                registry,
+                branches: &branches,
+                out: Path::new("unused"),
+                github: &github,
+                workflow: schema::RELEASE_WORKFLOW,
+                categories: &categories(registry).unwrap(),
+                builds: &mut builds,
+            }
+            .observe(&live, &[release], &mut summary);
+            (summary, github.downloads.borrow().len())
+        };
+        // Signed: the reason is written, with the registrants' absence named.
+        let (summary, _) = observe(&registry, BTreeSet::new(), stream(true));
+        assert!(summary.contains("records no registrant"), "{summary}");
+        // Old format (nothing signed names a path): silent and nothing is downloaded.
+        let (summary, downloads) = observe(&registry, BTreeSet::new(), stream(false));
+        assert!((summary.as_str(), downloads) == ("", 0), "{summary}");
+        // An existing PR branch for that release keeps it handled.
+        let handled = BTreeSet::from([format!("release/{}/1.2.0", key.as_str())]);
+        let (summary, _) = observe(&registry, handled, stream(true));
+        assert_eq!(summary, "");
+        // With a registrant the release is taken as far as the next check, not refused for owners.
+        registry.repositories.get_mut(&id).unwrap().registrant =
+            toml::from_str::<schema::Repository>(
+                "name = 'example/wayfinder'\n[[registrant]]\nid = 19\nlogin = 'Admin'\n",
+            )
+            .unwrap()
+            .registrant;
+        let (summary, _) = observe(&registry, BTreeSet::new(), stream(true));
+        assert!(!summary.contains("registrant"), "{summary}");
     }
 
     #[test]
