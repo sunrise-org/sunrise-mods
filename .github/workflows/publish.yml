@@ -87,11 +87,13 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: python3 -I .github/registry-v2/live.py --publishable "$GITHUB_SHA"
-      # The release archive of minisign 0.12 and its x86_64 binary, by SHA-256.
+      # The release archive of minisign 0.12 and its x86_64 binary, by SHA-256. Three retries after
+      # 1, 2 and 4 seconds, as the bot's downloads: --retry alone leaves a reset connection
+      # (curl 35) alone, so every error is retried, and the SHA-256 checks still decide.
       - name: Get minisign for signing only
         run: |
           set -euo pipefail
-          curl --disable --proto '=https' --proto-redir '=https' -fsSL -o "$RUNNER_TEMP/minisign.tar.gz" \
+          curl --disable --proto '=https' --proto-redir '=https' -fsSL --retry 3 --retry-all-errors -o "$RUNNER_TEMP/minisign.tar.gz" \
             https://github.com/jedisct1/minisign/releases/download/0.12/minisign-0.12-linux.tar.gz
           echo "9a599b48ba6eb7b1e80f12f36b94ceca7c00b7a5173c95c3efc88d9822957e73  $RUNNER_TEMP/minisign.tar.gz" | sha256sum --check --strict -
           tar -C "$RUNNER_TEMP" -xzf "$RUNNER_TEMP/minisign.tar.gz" minisign-linux/x86_64/minisign
