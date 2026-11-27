@@ -3,3 +3,7 @@ name = "arismoko/mcwfences"
 [[package]]
 path = "."
 project = "4Vdx2NAo"
+
+[[registrant]]
+id = 19542195
+login = "arismoko"

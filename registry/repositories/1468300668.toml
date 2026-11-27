@@ -3,3 +3,7 @@ name = "arismoko/earshot"
 [[package]]
 path = "."
 project = "brrQGyw5"
+
+[[registrant]]
+id = 19542195
+login = "arismoko"

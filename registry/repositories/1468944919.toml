@@ -3,3 +3,7 @@ name = "arismoko/dis_enchanting_table"
 [[package]]
 path = "."
 project = "OoBpN9y7"
+
+[[registrant]]
+id = 19542195
+login = "arismoko"

@@ -3,3 +3,7 @@ name = "arismoko/yungs_better_desert_temples"
 [[package]]
 path = "."
 project = "NgsSuDWY"
+
+[[registrant]]
+id = 19542195
+login = "arismoko"

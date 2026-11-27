@@ -3,3 +3,7 @@ name = "Joeypc6/JEI-Sunrise"
 [[package]]
 path = "."
 project = "Z7SFz2ox"
+
+[[registrant]]
+id = 35495484
+login = "Joeypc6"

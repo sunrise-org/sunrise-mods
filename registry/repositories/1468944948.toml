@@ -3,3 +3,7 @@ name = "arismoko/cloud_glass"
 [[package]]
 path = "."
 project = "lw4j9EQ2"
+
+[[registrant]]
+id = 19542195
+login = "arismoko"

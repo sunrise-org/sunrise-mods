@@ -3,3 +3,7 @@ name = "EAnathos/sunrise-villagefolk"
 [[package]]
 path = "."
 project = "0NGqlII7"
+
+[[registrant]]
+id = 83123402
+login = "EAnathos"

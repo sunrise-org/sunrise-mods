@@ -3,3 +3,7 @@ name = "arismoko/silents_gems"
 [[package]]
 path = "."
 project = "pLyRmLR3"
+
+[[registrant]]
+id = 19542195
+login = "arismoko"

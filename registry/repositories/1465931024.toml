@@ -3,3 +3,7 @@ name = "Flo-bot-png/shulker-tooltip"
 [[package]]
 path = "."
 project = "NMyKZ93F"
+
+[[registrant]]
+id = 359316577
+login = "Flo-bot-png"

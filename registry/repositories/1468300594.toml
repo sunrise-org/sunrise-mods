@@ -3,3 +3,7 @@ name = "arismoko/macaws_paths_and_pavings"
 [[package]]
 path = "."
 project = "bSETUGA3"
+
+[[registrant]]
+id = 19542195
+login = "arismoko"

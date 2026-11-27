@@ -3,3 +3,7 @@ name = "arismoko/factory_blocks_forge_fabric_neoforge"
 [[package]]
 path = "."
 project = "NQsQbQtl"
+
+[[registrant]]
+id = 19542195
+login = "arismoko"

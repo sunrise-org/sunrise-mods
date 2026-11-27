@@ -3,3 +3,7 @@ name = "Zekrenlight/frontier"
 [[package]]
 path = "."
 project = "mw5hjjtP"
+
+[[registrant]]
+id = 166447530
+login = "Zekrenlight"

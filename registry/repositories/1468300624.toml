@@ -3,3 +3,7 @@ name = "arismoko/wayfarer-stones"
 [[package]]
 path = "wayfarer_stones"
 project = "f0PF6EzQ"
+
+[[registrant]]
+id = 19542195
+login = "arismoko"

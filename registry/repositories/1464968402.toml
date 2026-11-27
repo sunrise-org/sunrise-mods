@@ -3,3 +3,7 @@ name = "Zekrenlight/statistics-plus"
 [[package]]
 path = "."
 project = "ArbTe1hZ"
+
+[[registrant]]
+id = 166447530
+login = "Zekrenlight"

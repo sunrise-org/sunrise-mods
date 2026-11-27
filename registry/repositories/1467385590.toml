@@ -3,3 +3,7 @@ name = "Flo-bot-png/chunksmith-bridge"
 [[package]]
 path = "."
 project = "0NvLznct"
+
+[[registrant]]
+id = 359316577
+login = "Flo-bot-png"

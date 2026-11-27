@@ -3,3 +3,7 @@ name = "play-go/farmersdelight-sunrise"
 [[package]]
 path = "."
 project = "OtgyAz3K"
+
+[[registrant]]
+id = 62743191
+login = "play-go"

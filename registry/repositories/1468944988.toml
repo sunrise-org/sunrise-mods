@@ -3,3 +3,7 @@ name = "arismoko/horizon-rust-mods"
 [[package]]
 path = "native/appleskin"
 project = "aHkkYRPa"
+
+[[registrant]]
+id = 19542195
+login = "arismoko"

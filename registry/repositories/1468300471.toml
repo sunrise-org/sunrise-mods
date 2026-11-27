@@ -3,3 +3,7 @@ name = "arismoko/simply_light"
 [[package]]
 path = "."
 project = "KP1Fa50Q"
+
+[[registrant]]
+id = 19542195
+login = "arismoko"

@@ -3,3 +3,7 @@ name = "arismoko/deepbore-quarry"
 [[package]]
 path = "deepbore_quarry"
 project = "ihzPxcaa"
+
+[[registrant]]
+id = 19542195
+login = "arismoko"

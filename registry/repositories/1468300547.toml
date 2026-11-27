@@ -3,3 +3,7 @@ name = "arismoko/macaws_doors"
 [[package]]
 path = "."
 project = "woOSyWLz"
+
+[[registrant]]
+id = 19542195
+login = "arismoko"

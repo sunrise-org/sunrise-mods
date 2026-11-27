@@ -3,3 +3,7 @@ name = "arismoko/macaws_trapdoors"
 [[package]]
 path = "."
 project = "cqXLbgxI"
+
+[[registrant]]
+id = 19542195
+login = "arismoko"

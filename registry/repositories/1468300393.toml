@@ -3,3 +3,7 @@ name = "arismoko/additional_lights"
 [[package]]
 path = "."
 project = "hpCoCCIB"
+
+[[registrant]]
+id = 19542195
+login = "arismoko"

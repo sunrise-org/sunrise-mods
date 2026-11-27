@@ -3,3 +3,7 @@ name = "arismoko/sunrise-register-test-renamed"
 [[package]]
 path = "."
 project = "UOwtIfFL"
+
+[[registrant]]
+id = 19542195
+login = "arismoko"
