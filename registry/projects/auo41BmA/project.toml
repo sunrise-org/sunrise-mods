@@ -1,9 +1,0 @@
-id = "auo41BmA"
-slug = "ported_corn_delight"
-mod = "ported_corn_delight"
-kind = "native-mod"
-owners = ["play-go"]
-repository = 1460344010
-path = "."
-workflow = "sunrise-org/sunrise-mods/.github/workflows/release.yml"
-registered = "2026-11-23"

@@ -1,9 +1,5 @@
 name = "arismoko/betterstrongholds"
 
-[[package]]
-path = "."
-project = "pvf5JSuK"
-
 [[registrant]]
 id = 19542195
 login = "arismoko"

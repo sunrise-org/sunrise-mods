@@ -1,9 +1,0 @@
-id = "EdeQBcfn"
-slug = "ported_moredelight"
-mod = "ported_moredelight"
-kind = "mod"
-owners = ["play-go"]
-repository = 1459568705
-path = "."
-workflow = "sunrise-org/sunrise-mods/.github/workflows/release.yml"
-registered = "2026-11-23"

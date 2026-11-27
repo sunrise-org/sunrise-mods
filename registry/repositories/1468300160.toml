@@ -1,9 +1,5 @@
 name = "arismoko/yungs_better_nether_fortresses"
 
-[[package]]
-path = "."
-project = "Bo91N4R1"
-
 [[registrant]]
 id = 19542195
 login = "arismoko"

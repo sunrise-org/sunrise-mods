@@ -1,9 +1,0 @@
-id = "pvf5JSuK"
-slug = "yungs-better-strongholds"
-mod = "betterstrongholds"
-kind = "mod"
-owners = ["arismoko"]
-repository = 1468300279
-path = "."
-workflow = "sunrise-org/sunrise-mods/.github/workflows/release.yml"
-registered = "2026-11-23"

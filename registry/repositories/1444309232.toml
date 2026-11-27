@@ -1,9 +1,5 @@
 name = "Dawnforger/occultism-horizon"
 
-[[package]]
-path = "."
-project = "KAEfmgil"
-
 [[registrant]]
 id = 73370299
 login = "Dawnforger"

@@ -1,9 +1,5 @@
 name = "play-go/moredelight-sunrise"
 
-[[package]]
-path = "."
-project = "EdeQBcfn"
-
 [[registrant]]
 id = 62743191
 login = "play-go"

@@ -1,9 +1,0 @@
-id = "OtgyAz3K"
-slug = "ported_farmersdelight"
-mod = "ported_farmersdelight"
-kind = "native-mod"
-owners = ["play-go"]
-repository = 1459541440
-path = "."
-workflow = "sunrise-org/sunrise-mods/.github/workflows/release.yml"
-registered = "2026-11-23"

@@ -1,9 +1,0 @@
-id = "KAEfmgil"
-slug = "occultism"
-mod = "occultism"
-kind = "native-mod"
-owners = ["Dawnforger"]
-repository = 1444309232
-path = "."
-workflow = "sunrise-org/sunrise-mods/.github/workflows/release.yml"
-registered = "2026-11-23"

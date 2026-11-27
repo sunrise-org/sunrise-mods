@@ -1,9 +1,0 @@
-id = "Bo91N4R1"
-slug = "yungs-better-nether-fortresses"
-mod = "betterfortresses"
-kind = "mod"
-owners = ["arismoko"]
-repository = 1468300160
-path = "."
-workflow = "sunrise-org/sunrise-mods/.github/workflows/release.yml"
-registered = "2026-11-23"
