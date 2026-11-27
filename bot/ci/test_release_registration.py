@@ -18,12 +18,19 @@ ROOT = Path(__file__).resolve().parents[2]
 # Every run is old: nothing in the policy may depend on how old a run is.
 LONG_AGO = "2020-01-01T00:00:00Z"
 OPEN = ("queued", "in_progress", "waiting", "requested", "pending")
+# Account ids. A run's `actor` is the account that caused its first attempt and never changes; `triggering_actor`
+# (whoever last re-ran it) is not in these fixtures at all, because nothing may read it.
+OPENER = 83123402
+MAINTAINER = 19542195
+TIMER = 41898282
 
 
-def run(id, event="issues", status="completed", conclusion="failure", number=9, attempt=1, created=LONG_AGO, title=None):
+def run(id, event="issues", status="completed", conclusion="failure", number=9, attempt=1, created=LONG_AGO, title=None,
+        actor=None, branch="main"):
     kind = "Registration retry for issue" if event == "workflow_dispatch" else "Registration of issue"
     return {"id": id, "event": event, "status": status, "conclusion": conclusion, "run_attempt": attempt,
-            "created_at": created, "display_title": title or f"{kind} {number}"}
+            "created_at": created, "display_title": title or f"{kind} {number}", "head_branch": branch,
+            "actor": {"id": actor or (TIMER if event == "workflow_dispatch" else OPENER)}}
 
 
 def dispatch(id, **kwargs):
@@ -43,18 +50,18 @@ def comment(run_id, state, user=release.BOT, id=77):
 
 
 def issue(number=9, title="Register alice/example", **extra):
-    return {"number": number, "title": title, **extra}
+    return {"number": number, "title": title, "user": {"id": OPENER}, **extra}
 
 
 def action(runs, marker=None, commented=False):
-    return registration.plan(runs, marker, commented)
+    return registration.plan(runs, OPENER, marker, commented)
 
 
 class Module(unittest.TestCase):
     def test_importing_it_does_nothing_and_the_policy_has_no_clock(self):
         # No sibling import at the top: the helpers are handed in, so the module is the same under `python3 -I`.
         self.assertFalse(hasattr(registration, "release_pr"))
-        self.assertEqual(list(inspect.signature(registration.plan).parameters), ["runs", "marker", "commented"])
+        self.assertEqual(list(inspect.signature(registration.plan).parameters), ["runs", "opener", "marker", "commented"])
         self.assertEqual(registration.ATTEMPTS, 5)
 
 
@@ -134,6 +141,65 @@ class Plan(unittest.TestCase):
         self.assertEqual(action([rerun], marker(100, "done")), ("stop", 100))
         rerun_dispatches = [dispatch(101 + i, conclusion="skipped", attempt=2) for i in range(5)]
         self.assertEqual(action([run(100), *rerun_dispatches]), ("exhausted", 105))
+
+    def test_a_maintainers_edit_or_skipped_rerun_neither_resets_nor_burns_the_budget(self):
+        # Run 45860346595 as GitHub reports it: actor is the opener's account (stable), triggering_actor the maintainer,
+        # attempt 2, skipped. The run is the opener's own, so it is the same cycle start it was before the re-run.
+        opener_rerun = {**run(100, conclusion="skipped", attempt=2), "triggering_actor": {"id": MAINTAINER}}
+        self.assertEqual(action([opener_rerun, *[dispatch(101 + i) for i in range(5)]]), ("exhausted", 105))
+        # A maintainer's edit is skipped on its first attempt; re-running it keeps attempt 2 and the maintainer as actor.
+        exhausted = [run(100), *[dispatch(101 + i) for i in range(5)]]
+        for name, extra in (
+            ("edit", run(200, conclusion="skipped", actor=MAINTAINER)),
+            ("skipped re-run of the edit", run(200, conclusion="skipped", attempt=2, actor=MAINTAINER)),
+            ("a later re-run of the edit", {**run(200, conclusion="skipped", attempt=3, actor=MAINTAINER), "triggering_actor": {"id": OPENER}}),
+            ("edit that did not end skipped", run(200, conclusion="failure", actor=MAINTAINER)),
+            ("edit still running", unfinished(200)),
+        ):
+            with self.subTest(name):
+                extra = {**extra, "actor": {"id": MAINTAINER}}
+                # Exhausted stays exhausted for the same run: no new cycle, no new newest run.
+                self.assertEqual(action([*exhausted, extra]), ("exhausted", 105))
+                self.assertEqual(action([*exhausted, extra], marker(105, "exhausted")), ("stop", 105))
+                # A cycle with budget left keeps the dispatches it has used.
+                used = [run(100), *[dispatch(101 + i) for i in range(4)]]
+                self.assertEqual(action([*used, extra]), ("dispatch", 104))
+                self.assertEqual(action([*used, extra, dispatch(300)]), ("exhausted", 300))
+                # And a fresh budget is not spent by it: the issue still has all five.
+                self.assertEqual(action([run(100), extra, *[dispatch(101 + i) for i in range(4)]]), ("dispatch", 104))
+
+    def test_the_opener_is_the_original_actor_and_the_live_issue_user_never_the_triggering_actor(self):
+        # A run caused by someone else, however it was later re-run, is not the opener's.
+        by_maintainer = {**run(200, conclusion="failure", attempt=2), "actor": {"id": MAINTAINER}, "triggering_actor": {"id": OPENER}}
+        self.assertEqual(action([run(100), dispatch(101), by_maintainer]), ("dispatch", 101))
+        # A run the opener caused and a maintainer re-ran is still the opener's.
+        by_opener = {**run(200, conclusion="failure", attempt=2), "triggering_actor": {"id": MAINTAINER}}
+        self.assertEqual(action([run(100), dispatch(101), by_opener]), ("dispatch", 200))
+        self.assertEqual(action([run(100), *[dispatch(101 + i) for i in range(5)], by_opener]), ("dispatch", 200))
+        # The issue's live user decides who the opener is: nobody's run is the opener's when the ids differ.
+        self.assertEqual(registration.plan([run(100)], MAINTAINER, None, False), ("dispatch", None))
+        self.assertEqual(registration.plan([run(100)], MAINTAINER, None, True), ("stop", None))
+        self.assertEqual(registration.plan([run(100, actor=MAINTAINER)], MAINTAINER, None, False), ("dispatch", 100))
+        # An actor Actions could not name starts nothing and breaks nothing.
+        for nobody in (None, {}):
+            self.assertEqual(action([run(100), {**run(200, conclusion="skipped", attempt=2), "actor": nobody}]), ("dispatch", 100))
+
+    def test_a_run_that_was_not_on_main_is_no_run_at_all(self):
+        used = [run(100), *[dispatch(101 + i) for i in range(4)]]
+        for name, extra in (
+            ("skipped dispatch", dispatch(200, conclusion="skipped", branch="feature")),
+            ("skipped re-run of it", dispatch(200, conclusion="skipped", attempt=2, branch="feature")),
+            ("dispatch that ran", dispatch(200, conclusion="failure", branch="feature")),
+            ("dispatch still running", unfinished(200, "workflow_dispatch")),
+            ("opener's own event", run(200, branch="feature")),
+        ):
+            with self.subTest(name):
+                extra = {**extra, "head_branch": "feature"}
+                self.assertEqual(action([*used, extra]), ("dispatch", 104))
+                self.assertEqual(action([*used, dispatch(105), extra]), ("exhausted", 105))
+                self.assertEqual(action([*used, dispatch(105), extra], marker(105, "exhausted")), ("stop", 105))
+        # A cycle of one run on another branch is no cycle.
+        self.assertEqual(action([run(100, branch="feature")]), ("dispatch", None))
 
     def test_runs_are_ordered_by_id_never_by_timestamp_or_by_the_order_given(self):
         newer = dispatch(101, status="queued", conclusion=None, created=LONG_AGO)
@@ -407,6 +473,29 @@ class Retry(unittest.TestCase):
         events, error = self.look([issue(9)], runs, {9: [comment(105, "exhausted")]})
         self.assertIsNone(error)
         self.assertEqual([event for event in events if event[0] in ("write", "dispatch")], [])
+
+    def test_a_maintainers_skipped_rerun_does_not_move_the_status_comment_or_the_count(self):
+        # Run 200 is a maintainer's edit re-run by the maintainer: newer than everything, skipped, attempt 2.
+        rerun = run(200, conclusion="skipped", attempt=2, actor=MAINTAINER)
+        runs = [run(100), *[dispatch(101 + i) for i in range(5)], rerun]
+        events, error = self.look([issue(9)], runs, {9: [comment(105, "exhausted")]})
+        self.assertIsNone(error)
+        self.assertEqual([event for event in events if event[0] in ("write", "dispatch")], [])
+        # Before the fifth: the unanswered comment names the cycle's real newest run, and one dispatch follows.
+        events, error = self.look([issue(9)], [run(100), dispatch(101), dispatch(102), rerun])
+        self.assertIsNone(error)
+        write = next(event for event in events if event[0] == "write")
+        self.assertTrue(write[2].startswith("<!-- registry-v2-registration run=102 state=unanswered -->"))
+        self.assertEqual(self.dispatches(events), ["issue=9"])
+
+    def test_the_live_issue_user_decides_whose_event_is_the_openers(self):
+        # Issue 9 is opened by someone whose id is not the actor of the only run: that run is not its opener's event.
+        events, error = self.look([issue(9, user={"id": MAINTAINER})], [run(100, conclusion="success")])
+        self.assertIsNone(error)
+        self.assertEqual(self.dispatches(events), ["issue=9"])
+        # With the right opener the same history is the silent answer.
+        events, error = self.look([issue(9)], [run(100, conclusion="success")])
+        self.assertEqual(self.dispatches(events), [])
 
     def test_a_failure_on_one_issue_does_not_hide_the_others(self):
         gh = Mock(side_effect=[release.CommandError("gh: HTTP 502"), b""])

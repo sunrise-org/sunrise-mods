@@ -138,12 +138,13 @@ def answer(github):
     github.require(not unexplained or repeated, f"the registry's answer ({status}) is not one the workflow understands")
 
 
-def plan(runs, marker, commented):
+def plan(runs, opener, marker, commented):
     """What the timer does for one open Register issue: (action, id of the cycle's newest run or None).
 
     `runs` are this issue's runs from GitHub's history of the workflow, in any order. A run is identified and ordered by
-    its id, never by a timestamp; a re-run of a run keeps its id. `marker` is the bot's status comment (see
-    `read_comments`) and `commented` whether the bot said anything on the issue. The action is:
+    its id, never by a timestamp; a re-run of a run keeps its id. `opener` is the live issue's `user.id`. `marker` is
+    the bot's status comment (see `read_comments`) and `commented` whether the bot said anything on the issue. The
+    action is:
 
       stop       answered, or nothing to retry
       wait       the newest run has not finished
@@ -151,10 +152,16 @@ def plan(runs, marker, commented):
       exhausted  the retries are used up; the timer says so
 
     A cycle is the opener's newest own `issues` run and the dispatches after it, so an edit by the opener starts a new
-    one. Runs that Actions skipped registered nothing and are left out: someone else's edit, a dispatch from another
-    branch.
+    one. The opener's run is the one whose original `actor.id` is `opener`. `triggering_actor` is never read: it
+    names whoever last re-ran the run, while `actor` stays the account that caused the first attempt. A run counts
+    only when it ran on main, and an `issues` run only when it is the opener's, so a maintainer's edit or re-run and a
+    dispatch from another branch, skipped or re-run, neither start a cycle nor use an attempt. Of the runs left, an
+    attempt-one run that Actions skipped registered nothing and is dropped; a skipped later attempt is a re-run of a
+    run that did run (the workflow refuses a re-run), which keeps its id and stays.
     """
-    runs = sorted((run for run in runs if run["conclusion"] != "skipped" or run["run_attempt"] > 1), key=lambda run: run["id"])
+    runs = sorted((run for run in runs if run["head_branch"] == "main"
+                   and (run["event"] != "issues" or (run["actor"] or {}).get("id") == opener)
+                   and (run["conclusion"] != "skipped" or run["run_attempt"] > 1)), key=lambda run: run["id"])
     start = max((run["id"] for run in runs if run["event"] == "issues"), default=0)
     cycle = [run for run in runs if run["id"] >= start]
     if not cycle:
@@ -206,7 +213,7 @@ def retry(github):
         number = issue["number"]
         try:
             marker, commented = read_comments(github, number)
-            action, newest = plan(history.get(number, []), marker, commented)
+            action, newest = plan(history.get(number, []), issue["user"]["id"], marker, commented)
             if action != "stop":
                 print(f"#{number}: {action}")
             if action == "dispatch":

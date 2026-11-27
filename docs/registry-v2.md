@@ -602,8 +602,10 @@ Each `tick` of `timer.yml` has one step, `registration_retry.py retry`, that loo
 It reads the whole history of `register-issue.yml` runs, unfiltered and paginated, and stops with an error
 if the list is shorter than GitHub's own total, so a history it could not read is never an empty one. Runs are
 identified and ordered by run id. For each issue, a cycle is the opener's newest own `issues` run and the
-`workflow_dispatch` runs after it (an edit or reopening by the opener starts a new cycle; a run Actions skipped, such
-as someone else's edit, counts for nothing). The step:
+`workflow_dispatch` runs after it (an edit or reopening by the opener starts a new cycle). The opener's run is the
+run whose `actor.id`, the account that caused its first attempt, is the open issue's `user.id`; `triggering_actor`,
+who last re-ran it, is never read. Only runs on `main` count. A maintainer's edit (and any re-run of it), a dispatch from
+another branch and a run Actions skipped on its first attempt start no cycle and use no attempt. The step:
 
 - waits while the newest run of the cycle has not finished, however long it has been running;
 - stops when that run's comment is `done` or `exhausted`, or the run ended green with no comment of its own (the
