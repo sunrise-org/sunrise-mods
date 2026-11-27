@@ -1,15 +1,15 @@
 name: Register a repository
-description: Ask for your mod's repository to be added to the registry, so its releases are picked up
+description: Ask for your mod's repository to be tracked by the registry, so its releases are picked up
 title: "Register <owner>/<repository>"
 body:
   - type: markdown
     attributes:
       value: |
-        The registry checks your repository from this issue and opens its registration pull request, as the form at https://playsunrise.net/mods/submit does; the answer is a comment here. Registering lists nothing by itself: a project appears in Discover after its first release through `cargo sunrise-mod release` is reviewed and merged.
+        The registry checks that the repository is public and belongs to your account and opens its registration pull request, as the form at https://playsunrise.net/mods/submit does; the answer is a comment here. Nothing in the repository is read. Registering lists nothing by itself: a project appears in Discover after its first release through `cargo sunrise-mod release` is reviewed and merged.
 
         An issue can register only a public repository that belongs to the personal account opening it. For an organisation's repository, an admin of it uses the form at https://playsunrise.net/mods/submit instead.
 
-        Before opening it, run `cargo sunrise-mod release setup` and commit what it adds: the default branch needs each mod's `sunrise-mod.toml`, `page.toml` and release workflow.
+        If the registry cannot finish the check, it tries again by itself every ten minutes, up to five more times, and the comment here says so. Edit this issue only when the comment tells you what to change.
   - type: input
     id: repository
     attributes:
@@ -18,8 +18,3 @@ body:
       placeholder: https://github.com/<owner>/<repository>
     validations:
       required: true
-  - type: textarea
-    id: packages
-    attributes:
-      label: Package folders
-      description: Only when the repository holds several mods. One folder per line, each holding a `sunrise-mod.toml`. Leave empty when the mod is at the repository's root.

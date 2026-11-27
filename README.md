@@ -93,7 +93,8 @@ What a listed project agrees to is in [MOD-POLICY.md](MOD-POLICY.md).
 - **`judge fits`** runs on every push to `main`, and by hand after an SDK is published. It works out which
   game builds each release fits, stores the verdicts on the `registry-fit` branch and starts `publish`.
 - **`publish`** assembles, signs and deploys the index.
-- **`register-issue`** answers a Register issue with a registration pull request.
+- **`register-issue`** answers a Register issue with a registration pull request. When the registry could not
+  answer, the timer starts it again, up to five more times ([Registration retries](docs/registry-v2.md#registration-retries)).
 - **`dco`**: every commit carries a `Signed-off-by:` line for its author.
 
 ## Sign-off

@@ -580,3 +580,46 @@ workflow by number to look at its own maintenance PRs, such as a repository rena
 A maintainer must approve the ordinary `dco` workflow runs for PRs the bot opens with
 `GITHUB_TOKEN`, and the `registry-v2` run of a PR that moves the tool's Sunrise pin
 (`bot-pin.yml`).
+
+## Registration retries
+
+`register-issue.yml` asks the registry service about a `Register ` issue on the opener's own open, edit
+or reopen, and on `workflow_dispatch` with the issue's number. A run's title carries the number
+(`Registration of issue N`, `Registration retry for issue N`). The service reads the issue's live opener, so a
+dispatch registers that account, never the dispatcher, and refuses an issue that is closed, not titled
+`Register `, or whose opener is suspended. A run makes one call. It never retries by itself, and an Actions
+"re-run" is refused.
+
+A run writes the issue's one status comment of the bot's. Its first line is a marker
+(`<!-- registry-v2-registration run=<run id> state=retry|unanswered|done|exhausted -->`); only the bot's own
+comment counts. A registration, `already_registered`, `already_pending` or another definite answer is `done`. A
+typed `{"retry": …}` answer (rate, busy, GitHub, registry head) is `retry` and the run stays green. No JSON, an
+edge's page, a bare 403, a connection failure or JSON of another shape is `unanswered`. The first unanswered run
+of a cycle is **red**; a dispatch that again gets no answer, right after one that got none, writes the comment
+and stays green. The comment asks the author to edit the issue only for a problem the author can fix.
+
+Each `tick` of `timer.yml` has one step, `registration_retry.py retry`, that looks at the open `Register ` issues.
+It reads the whole history of `register-issue.yml` runs, unfiltered and paginated, and stops with an error
+if the list is shorter than GitHub's own total, so a history it could not read is never an empty one. Runs are
+identified and ordered by run id. For each issue, a cycle is the opener's newest own `issues` run and the
+`workflow_dispatch` runs after it (an edit or reopening by the opener starts a new cycle; a run Actions skipped, such
+as someone else's edit, counts for nothing). The step:
+
+- waits while the newest run of the cycle has not finished, however long it has been running;
+- stops when that run's comment is `done` or `exhausted`, or the run ended green with no comment of its own (the
+  registry's silent answer for an issue that is closed or not a registration);
+- starts one more run when the run ended any other way: a typed `retry`, an `unanswered` comment, or red, cancelled
+  or timed out before it commented (the step then writes the `unanswered` comment itself first);
+- when five dispatches of the cycle have run, writes `exhausted` into the comment and goes red once.
+
+An issue with no run at all, because the event never started one, is dispatched unless the bot has already
+commented on it. One dispatch per issue per tick is the pace of the serialized `tick` job: it holds its concurrency
+group for the ten minutes between ticks. Nothing here has a clock; the registry's own rate check counts each dispatch
+against the opener like any other try.
+
+A failure of the step turns `timer.yml`'s run red, and every later step of `tick` still runs. These workflows send
+no notification of their own: a red run is the signal.
+
+A maintainer recovers an exhausted or stuck issue with
+`gh workflow run register-issue.yml -R sunrise-org/sunrise-mods --ref main -f issue=N`. It counts as an attempt, and
+the timer starts none after the fifth.

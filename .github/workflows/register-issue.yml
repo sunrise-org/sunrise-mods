@@ -1,98 +1,86 @@
 name: register-issue
+# The number is in the run's title so the timer can count, from GitHub's history, how often an issue was asked about.
+run-name: ${{ github.event_name == 'workflow_dispatch' && format('Registration retry for issue {0}', inputs.issue) || format('Registration of issue {0}', github.event.issue.number) }}
 
 # A "Register a repository" issue is handed to the registry service, which does what the site's form does:
 # it reads the issue itself, checks the repository and opens the registration pull request. This workflow is
 # only the trigger. It sends the issue's number and this run's GitHub OIDC token, by which the service knows
 # the call comes from this file on main, and writes the answer on the issue. Nothing from the issue's text
 # reaches a script here, and the repository being registered is never checked out or run.
+#
+# It runs for the opener's own event, and by dispatch for a retry: the timer (timer.yml) starts one for an issue the
+# registry has not answered, and a maintainer can start one (`gh workflow run register-issue.yml
+# -R sunrise-org/sunrise-mods --ref main -f issue=N`; an Actions "re-run" is refused). A dispatch names only the issue:
+# the registry reads the issue's live opener and registers that account, never whoever dispatched. There is no retry
+# loop in a run.
 on:
   issues:
     types: [opened, edited, reopened]
+  workflow_dispatch:
+    inputs:
+      issue:
+        description: The number of the open Register issue to check again.
+        required: true
+        type: string
 
 permissions: {}
 
+# One run at a time for an issue, however it was started.
 concurrency:
-  group: register-issue-${{ github.event.issue.number }}
+  group: register-issue-${{ github.event.issue.number || inputs.issue }}
 
 jobs:
   register:
     # The register form's title; `if` is evaluated by Actions, never by a shell.
-    # The opener's own event on an open issue: someone else's edit or reopening registers nothing.
+    # An event is the opener's own, on an open issue: someone else's edit or reopening registers nothing.
+    # A dispatch is checked by the registry, which refuses an issue that is closed or not titled `Register `.
     # Only the run the event started: a re-run would carry the opener's identity for whoever asked for it,
     # against an issue that may have been edited since. The registry refuses a re-run's token as well.
     if: >-
-      startsWith(github.event.issue.title, 'Register ')
-      && github.event.issue.state == 'open'
-      && github.event.sender.id == github.event.issue.user.id
+      github.ref == 'refs/heads/main'
       && github.run_attempt == 1
+      && (github.event_name == 'workflow_dispatch'
+        || (startsWith(github.event.issue.title, 'Register ')
+          && github.event.issue.state == 'open'
+          && github.event.sender.id == github.event.issue.user.id))
     runs-on: ubuntu-latest
     timeout-minutes: 5
     permissions:
+      contents: read # this repository's own script
       id-token: write # the OIDC token the registry service checks
       issues: write # the answer on the issue
     env:
-      ISSUE: ${{ github.event.issue.number }}
+      ISSUE: ${{ github.event.issue.number || inputs.issue }}
       GH_TOKEN: ${{ github.token }}
       # The service's route, and the audience it requires of the token.
       REGISTRY: https://playsunrise.net/api/mods/issue-registration
-      FORM: https://playsunrise.net/mods/submit
     steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      # Always ends with a status, 000 when there was none: the next step reads it and says what it means.
       - name: Ask the registry
+        id: ask
+        env:
+          ANSWER: ${{ runner.temp }}/answer.json
         run: |
           set -euo pipefail
-          token=$(curl -sS --fail --max-time 30 \
+          status=000
+          if token=$(curl -sS --fail --max-time 30 \
             -H "Authorization: Bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" \
-            --get --data-urlencode "audience=$REGISTRY" "$ACTIONS_ID_TOKEN_REQUEST_URL" | jq -er .value)
-          echo "::add-mask::$token"
-          # One call per event, never retried: the service answers a repeat with the same pull request.
-          status=$(jq -n --argjson issue "$ISSUE" --arg token "$token" '{issue: $issue, token: $token}' |
-            curl -sS --max-time 180 -o answer.json -w '%{http_code}' -X POST \
-              -H 'Content-Type: application/json' --data @- "$REGISTRY") || status=000
-          echo "The registry answered $status"
-          jq -rn --arg status "$status" --arg form "$FORM" --arg repo "$GITHUB_REPOSITORY" \
-            --slurpfile answer <(jq -c 'objects' answer.json 2>/dev/null || true) '
-            ($answer[0] // {}) as $a
-            | {
-                repository_url: "The Repository field must hold one link of the form `https://github.com/<owner>/<repository>`. Edit the issue to fix it.",
-                package_folders: "Use one relative package folder per line, without repeats, colons, backslashes or parent folders (`..`). Edit the issue to fix it.",
-                form_size: "The issue names too many package folders for one registration. Edit the issue to name fewer.",
-                standing: "This account cannot register a mod right now.",
-                rate: "Too many requests from this account. Edit the issue later to try again.",
-                busy: "The registry is checking other requests. Edit the issue in a minute to try again.",
-                repository_missing: "GitHub could not find the repository. Check the link, and that the repository is public.",
-                repository_private: "The repository must be public.",
-                repository_admin: "An issue can register only a repository that belongs to the personal account that opened it. For a repository of an organisation, or of another account, an admin of the repository registers it with the form at \($form).",
-                repository_large: "The repository has too many files to check.",
-                file_size: "The manifest, page and workflow files are too large to check in one registration.",
-                manifest_missing: "A selected package has no `sunrise-mod.toml` on the default branch.",
-                manifest_invalid: "A selected package has an invalid `sunrise-mod.toml`. Run `cargo sunrise-mod check` and fix the manifest.",
-                workflow_missing: "A release caller is missing on the default branch. Run `cargo sunrise-mod release setup` and commit the workflow.",
-                workflow_invalid: "The release caller must use the current registry workflow and the expected package folder and tag pattern. Run `cargo sunrise-mod release setup`.",
-                page_missing: "A selected package has no `page.toml` on the default branch.",
-                page_invalid: "A selected package has an invalid `page.toml`. Check the field names and values in the publishing guide.",
-                page_summary: "Write a summary of at least 25 characters in `page.toml`.",
-                page_description: "Write a description of at least 125 characters in `page.toml`.",
-                page_categories: "Use up to 8 categories listed for this mod kind in the registry.",
-                screenshot_count: "List at least one screenshot in `page.toml`.",
-                screenshot_path: "Each screenshot must be a PNG or JPEG in the package'"'"'s `page/` folder.",
-                screenshot_missing: "A screenshot listed in `page.toml` is not a regular file on the default branch.",
-                screenshot_size: "Each screenshot must be nonempty and at most 5 MiB.",
-                duplicate_mod_id: "Each subfolder package must have a different mod ID.",
-                already_registered: "A selected package folder or subfolder mod ID is already registered for this repository.",
-                already_pending: "A selected package folder or subfolder mod ID already has an open registration pull request.",
-                registry_changed: "The registry changed while this request was checked. Edit the issue to try again."
-              } as $problems
-            | if $status == "200" and ($a.registration | type) == "number" then
-                "🤖 Agent: The repository passed the registry'"'"'s checks: its registration is #\($a.registration), which closes this issue when it merges. Registering lists nothing by itself: a project appears after its first release through `cargo sunrise-mod release` is reviewed and merged."
-              elif $status == "404" and $a.problem == "issue" then
-                empty
-              elif ($a.problem | type) == "string" and $problems[$a.problem] then
-                "🤖 Agent: This repository could not be registered. \($problems[$a.problem])\n\nAfter fixing it, edit this issue to have it checked again, or use the form at \($form)."
-              else
-                "🤖 Agent: The registry could not check this issue right now. Edit the issue later to try again, or use the form at \($form)."
-              end' > comment.md
-          if [ -s comment.md ]; then
-            gh issue comment "$ISSUE" --repo "$GITHUB_REPOSITORY" --body-file comment.md
+            --get --data-urlencode "audience=$REGISTRY" "$ACTIONS_ID_TOKEN_REQUEST_URL" | jq -er .value); then
+            echo "::add-mask::$token"
+            # One call per run: the service answers a repeat with the same pull request, and a retry is another run.
+            status=$(jq -n --argjson issue "$ISSUE" --arg token "$token" '{issue: $issue, token: $token}' |
+              curl -sS --max-time 180 -o "$ANSWER" -w '%{http_code}' -X POST \
+                -H 'Content-Type: application/json' --data @- "$REGISTRY") || status=000
           fi
-          # A red run when the service gave neither a registration nor a reason, so it is seen.
-          jq -e '.registration or .problem' answer.json > /dev/null
+          echo "status=$status" >> "$GITHUB_OUTPUT"
+      # The one status comment on the issue, and a red run when a maintainer should look.
+      - name: Say what the registry answered
+        if: ${{ !cancelled() }}
+        env:
+          STATUS: ${{ steps.ask.outputs.status }}
+          ANSWER: ${{ runner.temp }}/answer.json
+        run: python3 -I bot/ci/registration_retry.py answer
