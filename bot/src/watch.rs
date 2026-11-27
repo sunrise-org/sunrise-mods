@@ -219,18 +219,16 @@ pub fn run(checkout: &Path, out: &Path, github: &dyn GitHub) -> Result<(), Strin
                 }
             }
         }
-        if !repo.registrant.is_empty() {
-            first::Watch {
-                registry: &registry,
-                branches: &branches,
-                out,
-                github,
-                workflow: &workflow,
-                categories: &categories,
-                builds: &mut builds,
-            }
-            .observe(&live, &releases, &mut summary);
+        first::Watch {
+            registry: &registry,
+            branches: &branches,
+            out,
+            github,
+            workflow: &workflow,
+            categories: &categories,
+            builds: &mut builds,
         }
+        .observe(&live, &releases, &mut summary);
     }
     if summary == "### Registry release watcher\n\n" {
         summary.push_str("No new releases to propose.\n");
@@ -982,6 +980,9 @@ mod tests {
         alias_reassigned: bool,
         alias_broken: bool,
         other_page_signer: bool,
+        /// Lists an unclaimed `fresh` tag stream in the first repository, with or without the
+        /// signed `release.json` asset.
+        fresh: Option<bool>,
         /// What each stream's `<mod>-<version>.release.json` serves, by mod ID.
         served: BTreeMap<&'static str, &'static str>,
         /// How a stream's attested subjects differ from the file it serves.
@@ -1045,6 +1046,9 @@ mod tests {
                     live_release("1.2.0", "2026-11-23T13:00:00Z", None),
                     live_release("1.1.0", "2026-11-23T12:00:00Z", None),
                 ]),
+                Repo::Registered(id) if id.get() == 123456789 && self.fresh.is_some() => {
+                    Ok(vec![fresh_stream(self.fresh == Some(true))])
+                }
                 Repo::Registered(_) => Ok(Vec::new()),
                 Repo::Named(_) => Err("registered releases must be fetched by numeric ID".into()),
             }
@@ -1154,6 +1158,26 @@ mod tests {
             draft: false,
             assets,
         }
+    }
+
+    /// The newest release of an unclaimed `fresh/` tag stream; only a signed one carries `release.json`.
+    fn fresh_stream(signed: bool) -> github::Release {
+        let mut release = live_release("1.2.0", "2026-11-23T13:00:00Z", None);
+        release.tag_name = "fresh/v1.2.0".into();
+        release
+            .assets
+            .retain(|asset| !asset.name.contains(".page.tar"));
+        for asset in &mut release.assets {
+            asset.name = asset.name.replace("wayfinder-1.2.0", "fresh-1.2.0");
+            asset.browser_download_url = format!(
+                "https://github.com/{CURRENT}/releases/download/fresh/v1.2.0/{}",
+                asset.name
+            );
+        }
+        if signed {
+            with_release_json(&mut release, "fresh", Recorded::default().json("fresh"));
+        }
+        release
     }
 
     #[test]
@@ -1376,6 +1400,43 @@ mod tests {
             assert_eq!(downloads == 0, skipped, "{downloads} downloads");
             assert_eq!(summary.is_empty(), skipped, "{summary}");
         }
+    }
+
+    #[test]
+    fn run_reports_a_signed_first_release_in_a_row_without_registrants_and_proposes_nothing() {
+        let id: RepositoryId = serde_json::from_str("123456789").unwrap();
+        assert!(
+            load(Path::new(FIXTURE)).unwrap().repositories[&id]
+                .registrant
+                .is_empty()
+        );
+        // Signed: the stream is read, and watch.md says why it cannot be taken.
+        let out = tempfile::tempdir().unwrap();
+        let github = Recorded {
+            fresh: Some(true),
+            ..Recorded::default()
+        };
+        run(Path::new(FIXTURE), out.path(), &github).unwrap();
+        let summary = fs::read_to_string(out.path().join("watch.md")).unwrap();
+        assert!(
+            summary
+                .contains("<code>fresh/v1.2.0</code>: <code>signed first release cannot be taken"),
+            "{summary}"
+        );
+        assert!(summary.contains("records no registrant"), "{summary}");
+        assert!(!github.downloads.borrow().is_empty());
+        assert!(!out.path().join("first-releases").exists());
+        assert!(!out.path().join("releases").exists());
+        // Old format (no `release.json`): silent, and nothing is downloaded.
+        let out = tempfile::tempdir().unwrap();
+        let github = Recorded {
+            fresh: Some(false),
+            ..Recorded::default()
+        };
+        run(Path::new(FIXTURE), out.path(), &github).unwrap();
+        let summary = fs::read_to_string(out.path().join("watch.md")).unwrap();
+        assert!(!summary.contains("fresh/v1.2.0"), "{summary}");
+        assert!(github.downloads.borrow().is_empty());
     }
 
     #[test]

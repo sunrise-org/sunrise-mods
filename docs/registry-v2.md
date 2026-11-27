@@ -400,7 +400,11 @@ starts the next timer run, and a push to `main` restarts a chain that has stoppe
 repository by its numeric GitHub ID. A rename opens a separate maintenance PR for that repository's file;
 it does not change registrants, project owners or IDs, or rewrite old release URLs. The watcher reads
 existing project rows directly, including paused projects and reviewed moves. It also discovers
-first releases in tracked repositories with registrants. Of each tag stream (one namespace, or the
+first releases in every tracked repository. A repository row without registrants (one from before
+they were recorded) cannot name an owner and has none invented: a stream of it with no `release.json`
+asset stays silent, and a stream that carries one, once it is not claimed or already handled, is
+reported in `watch.md` as a signed first release that cannot be taken, until a reviewed change
+records a registrant. Of each tag stream (one namespace, or the
 root) that no registered project claims, only the newest publication by GitHub's timestamp is
 a candidate, even if it has no metadata; then that stream is not admitted and no older release of it
 is read or downloaded, so a tracked repository whose only tags predate `release.json` publishes one
