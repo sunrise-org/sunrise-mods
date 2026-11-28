@@ -1,0 +1,20 @@
+version = "1.0.3"
+kind = "native-mod"
+tag = "v1.0.3"
+published = "2026-11-28T02:24:22Z"
+sunrise = "dev-2026-11-26-ba1f24e"
+workflow = "sunrise-org/sunrise-mods/.github/workflows/release.yml@refs/tags/release-v1"
+repository = 1464968076
+dependencies = []
+
+[file]
+url = "https://github.com/Zekrenlight/hookline/releases/download/v1.0.3/hookline-1.0.3.smod"
+size = 66444
+sha256 = "58b2ef980eccf915dd509a28e44db74b15269893c5da88b5d503223e5f20c748"
+attestation = "https://github.com/Zekrenlight/hookline/releases/download/v1.0.3/hookline-1.0.3.smod.sigstore.json"
+
+[page]
+url = "https://github.com/Zekrenlight/hookline/releases/download/v1.0.3/hookline-1.0.3.page.tar"
+size = 70144
+sha256 = "5a99474c58c395dcc5959c5ba1beab2590b16ce20d9224f0b97f662c4a4f41a1"
+attestation = "https://github.com/Zekrenlight/hookline/releases/download/v1.0.3/hookline-1.0.3.page.tar.sigstore.json"
