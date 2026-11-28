@@ -1,0 +1,20 @@
+version = "1.0.3"
+kind = "native-mod"
+tag = "v1.0.3"
+published = "2026-11-28T02:29:37Z"
+sunrise = "dev-2026-11-26-ba1f24e"
+workflow = "sunrise-org/sunrise-mods/.github/workflows/release.yml@refs/tags/release-v1"
+repository = 1464968782
+dependencies = []
+
+[file]
+url = "https://github.com/Zekrenlight/supercam/releases/download/v1.0.3/supercam-1.0.3.smod"
+size = 41963
+sha256 = "7949d05a1abc5fa746cb3b52f487d43e01ec62dbc7831529ad6f4e7e209b6d6f"
+attestation = "https://github.com/Zekrenlight/supercam/releases/download/v1.0.3/supercam-1.0.3.smod.sigstore.json"
+
+[page]
+url = "https://github.com/Zekrenlight/supercam/releases/download/v1.0.3/supercam-1.0.3.page.tar"
+size = 50688
+sha256 = "0e730f9ed5b9ae5e5fef304f70e9684f24ee14f826501a59df4d7e9019d64a4e"
+attestation = "https://github.com/Zekrenlight/supercam/releases/download/v1.0.3/supercam-1.0.3.page.tar.sigstore.json"
