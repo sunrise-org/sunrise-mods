@@ -1,0 +1,20 @@
+version = "1.0.3"
+kind = "native-mod"
+tag = "v1.0.3"
+published = "2026-11-28T02:25:11Z"
+sunrise = "dev-2026-11-26-ba1f24e"
+workflow = "sunrise-org/sunrise-mods/.github/workflows/release.yml@refs/tags/release-v1"
+repository = 1464968980
+dependencies = []
+
+[file]
+url = "https://github.com/Zekrenlight/better-inventory/releases/download/v1.0.3/better_inventory-1.0.3.smod"
+size = 50036
+sha256 = "1f3833291f6310b65d1527d219e0f9795a733959e1adb85da2db3f496d0e7125"
+attestation = "https://github.com/Zekrenlight/better-inventory/releases/download/v1.0.3/better_inventory-1.0.3.smod.sigstore.json"
+
+[page]
+url = "https://github.com/Zekrenlight/better-inventory/releases/download/v1.0.3/better_inventory-1.0.3.page.tar"
+size = 171008
+sha256 = "003527acc65f0560e601c22dc76344f7d9125b8e778f1a9cdbde2eac50ae4642"
+attestation = "https://github.com/Zekrenlight/better-inventory/releases/download/v1.0.3/better_inventory-1.0.3.page.tar.sigstore.json"
