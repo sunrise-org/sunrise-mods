@@ -1,0 +1,9 @@
+id = "2cEDLef9"
+slug = "sunrise_creative_editor"
+mod = "sunrise_creative_editor"
+kind = "native-mod"
+owners = ["rewenx"]
+repository = 1475463116
+path = "client"
+workflow = "sunrise-org/sunrise-mods/.github/workflows/release.yml"
+registered = "2026-11-28"

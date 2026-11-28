@@ -1,0 +1,23 @@
+name = "Sunrise Creative Editor"
+summary = "Creative world editing, reusable schematics, and primitive shapes from the Orb of Creation."
+description = """
+A new single-player Creative world starts with the Orb of Creation. Run `/sce remote` in an existing Creative world to get it. Right-click the Orb to open the editor. Left-click and Shift-left-click select corners. Shift-right-click clears the selection. Aim at a face or corner and press R to resize.
+
+Fill a selection with a block or gradient, save or import Sponge and Litematica schematics, or build one of eight primitive shapes. Turn a shape into a reusable wand. Preview placements and rotate them around any axis before committing. An Air fill shows a pulsing perimeter through terrain when the shape overlaps blocks to erase.
+
+The same package includes single-player Creative editing and an optional editing engine for an authorized multiplayer server. Customize the Orb palette, selection colors, Nightvision, and hotkeys from the editor.
+
+This release targets Sunrise Dev `dev-2026-11-26-ba1f24e` for Minecraft 26.3.
+"""
+authors = ["Evander"]
+license = "MIT"
+icon = "icon.png"
+categories = []
+
+[[screenshots]]
+path = "fill-gradient.png"
+caption = "Fill shows the selected replacement blocks and previews the gradient."
+
+[[screenshots]]
+path = "void-perimeter.png"
+caption = "The pulsing Void perimeter shows the shape through solid terrain before it is applied."
