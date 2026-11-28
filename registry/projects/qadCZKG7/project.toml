@@ -1,0 +1,9 @@
+id = "qadCZKG7"
+slug = "pipes"
+mod = "pipes"
+kind = "native-mod"
+owners = ["sofia-gros"]
+repository = 1434135276
+path = "pipes-sunrise/mod"
+workflow = "sunrise-org/sunrise-mods/.github/workflows/release.yml"
+registered = "2026-11-28"

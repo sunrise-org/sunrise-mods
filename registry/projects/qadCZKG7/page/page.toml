@@ -1,0 +1,68 @@
+name = "Classic Pipes"
+summary = "Classic Pipes: item and fluid transport pipes — extraction and transport between chests, tanks, furnaces and Tinkers' Construct stations, built on PlutoLib."
+description = """
+Classic Pipes adds transport pipes in the classic extraction-pipe
+style: move items and fluids between chests, tanks, furnaces and
+Tinkers' Construct stations without opening an inventory. Items
+travelling through a pipe are drawn riding inside it, so you can
+watch a finished cast leave the table and arrive at the chest.
+
+- **Item Pipe** — carries item stacks from neighbour to neighbour;
+  junctions share stacks out round-robin, and a stack takes four
+  ticks to cross each pipe. Crafted from iron ingots and glass,
+  eight at a time.
+- **Extraction Pipe** — an item pipe with a motor: while it has a
+  redstone signal, it pulls one item every eight ticks out of the
+  container it faces and sends it into the run — including a
+  finished cast on a casting table, the moment the cast is done.
+  Crafted from an item pipe and redstone.
+- **Fluid Pipe** — each pipe is a 1,000 mB tank that levels what it
+  holds toward neighbouring pipes and fills any other tank that
+  takes it, up to 100 mB per tick. Faucets, channels and the
+  smeltery's own plumbing fill and drain it through the ordinary
+  tank reach. Crafted from copper ingots and glass, eight at a
+  time.
+- **Fluid Extraction Pipe** — while it has a redstone signal, it
+  draws fluid out of the tank it faces into the run, up to 100 mB
+  per tick. Crafted from a fluid pipe and redstone.
+
+## Requirements
+
+**Requires PlutoLib v1.0.0 or later. Built for v1.0.0; if a newer
+PlutoLib version does not work, use 1.0.0.**
+
+Classic Pipes is built entirely on PlutoLib's public API — the mod
+injects nothing itself, and the same mod source ships for Horizon
+and Sunrise.
+
+## Known limitations in this release
+
+- A broken pipe does **not** spill the items it was carrying yet.
+  PlutoLib's Sunrise block-entity API has no removal hook yet (the
+  Horizon edition has one); the spill returns when the API lands,
+  with no change needed in this mod.
+- The pipes have **no creative tab** yet: all four are fully
+  craftable in survival, but they cannot be taken from a creative
+  inventory tab. PlutoLib's creative-tab registration reach is not
+  connected on Sunrise yet (filed upstream as
+  [sunrise-org/sunrise#5950](https://github.com/sunrise-org/sunrise/issues/5950));
+  the tab appears when it lands, with no change needed in this mod.
+
+The screenshots were taken on Horizon. On Sunrise, behaviour may
+differ from the images in places, where parts of the API are not
+connected yet.
+
+This is the Sunrise edition, for Sunrise game 26.3. It ships as
+source plus `Cargo.lock`; the launcher builds it on the player's
+computer for the exact game build it pins.
+"""
+authors = ["sofia-gros"]
+license = "MIT"
+homepage = "https://github.com/sofia-gros/horizon-mods"
+issues = "https://github.com/sofia-gros/horizon-mods/issues"
+icon = "icon.png"
+categories = []
+
+[[screenshots]]
+path = "pipes-transit.png"
+caption = "A chest-to-chest pipe run in the current self-drawn pipe textures — dark frames with pale windows, brown extraction pipes at the feed end. Captured in-game."
