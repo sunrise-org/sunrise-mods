@@ -1,0 +1,20 @@
+version = "1.0.3"
+kind = "native-mod"
+tag = "v1.0.3"
+published = "2026-11-28T02:28:59Z"
+sunrise = "dev-2026-11-26-ba1f24e"
+workflow = "sunrise-org/sunrise-mods/.github/workflows/release.yml@refs/tags/release-v1"
+repository = 1464968880
+dependencies = []
+
+[file]
+url = "https://github.com/Zekrenlight/chatty/releases/download/v1.0.3/chatty-1.0.3.smod"
+size = 46275
+sha256 = "b83fb99a3ed7806b94da7ae365112ce0159012b4b7a32d97b2cc0ebb261770ed"
+attestation = "https://github.com/Zekrenlight/chatty/releases/download/v1.0.3/chatty-1.0.3.smod.sigstore.json"
+
+[page]
+url = "https://github.com/Zekrenlight/chatty/releases/download/v1.0.3/chatty-1.0.3.page.tar"
+size = 57856
+sha256 = "e9e752a36a9738d03e4f0242b1ac109dc33154b3e8058f3ba2198e0215145e29"
+attestation = "https://github.com/Zekrenlight/chatty/releases/download/v1.0.3/chatty-1.0.3.page.tar.sigstore.json"
