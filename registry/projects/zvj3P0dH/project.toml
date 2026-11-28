@@ -1,0 +1,9 @@
+id = "zvj3P0dH"
+slug = "stellarsky"
+mod = "stellarsky"
+kind = "native-mod"
+owners = ["sofia-gros"]
+repository = 1434135276
+path = "stellarsky-sunrise/mod"
+workflow = "sunrise-org/sunrise-mods/.github/workflows/release.yml"
+registered = "2026-11-28"

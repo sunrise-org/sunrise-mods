@@ -1,0 +1,24 @@
+version = "1.0.0"
+kind = "native-mod"
+tag = "stellarsky/v1.0.0"
+published = "2026-11-28T01:22:40Z"
+sunrise = "dev-2026-11-26-ba1f24e"
+workflow = "sunrise-org/sunrise-mods/.github/workflows/release.yml@refs/tags/release-v1"
+repository = 1434135276
+
+[file]
+url = "https://github.com/sofia-gros/horizon-mods/releases/download/stellarsky/v1.0.0/stellarsky-1.0.0.smod"
+size = 8740599
+sha256 = "818822aef69d1b602e920cc87c6ed854f4d845e464bdf49a70f320508362de6d"
+attestation = "https://github.com/sofia-gros/horizon-mods/releases/download/stellarsky/v1.0.0/stellarsky-1.0.0.smod.sigstore.json"
+
+[page]
+url = "https://github.com/sofia-gros/horizon-mods/releases/download/stellarsky/v1.0.0/stellarsky-1.0.0.page.tar"
+size = 1036288
+sha256 = "c2cfdf7dd476b82d94a81527d15fa4a09a0074090df8d3f35219795c48992f0c"
+attestation = "https://github.com/sofia-gros/horizon-mods/releases/download/stellarsky/v1.0.0/stellarsky-1.0.0.page.tar.sigstore.json"
+
+[[dependencies]]
+mod = "pluto_lib"
+version = ">=1.0.0"
+required = true

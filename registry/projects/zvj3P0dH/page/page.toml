@@ -1,0 +1,53 @@
+name = "Stellarsky"
+summary = "Stellarsky: a real night sky — the pre-industrial sky drawn star by star: 523 bright stars at their true positions, each with its own twinkling, and the black hole at Sagittarius A* over the galactic centre, built on PlutoLib."
+description = """
+Stellarsky replaces the Overworld's night sky with the real one:
+the sky as it was before industrial light pollution, when stars
+were visible down to about magnitude 6.5–7.0 and the Milky Way
+stood out with its dark bands. No resource pack is needed — the
+whole sky is carried inside the mod.
+
+The bright end is drawn star by star, because a texture cannot
+twinkle: 523 stars of magnitude 4 and brighter from the HYG star
+catalog, each at its true position, in its spectral colour, with
+its own scintillation. Over the galactic centre sits the dark
+patch of Sagittarius A*, the black hole at the heart of the Milky
+Way, culminating high in the south at midnight — and the vanilla
+star field is replaced entirely.
+
+## Requirements
+
+**Requires PlutoLib v1.0.0 or later. Built for v1.0.0; if a newer
+PlutoLib version does not work, use 1.0.0.**
+
+Every layer is registered through PlutoLib's public sky surface —
+the mod injects nothing itself, and the same mod source ships for
+Horizon and Sunrise.
+
+## In this Sunrise release
+
+The dynamic layer described above works in full. The three
+**static texture layers** — the faint star sphere carrying the
+Milky Way and its dark bands (magnitudes 4–7), the airglow band,
+and the zodiacal light — are **not shown yet**: PlutoLib's Sunrise
+sky surface has no texture-layer registry yet. They join the sky
+in a later PlutoLib release, with no change needed in this mod.
+
+The screenshots were taken on Horizon. On Sunrise, behaviour may
+differ from the images in places, where parts of the API are not
+connected yet.
+
+This is the Sunrise edition, for Sunrise game 26.3. It ships as
+source plus `Cargo.lock`; the launcher builds it on the player's
+computer for the exact game build it pins.
+"""
+authors = ["sofia-gros"]
+license = "MIT"
+homepage = "https://github.com/sofia-gros/horizon-mods"
+issues = "https://github.com/sofia-gros/horizon-mods/issues"
+icon = "icon.png"
+categories = []
+
+[[screenshots]]
+path = "stellarsky-night.png"
+caption = "The Stellarsky night sky — the Milky Way over the galactic centre, with its dark bands. Captured in-game on Horizon; the static sky layers in this shot are not connected on Sunrise yet."
