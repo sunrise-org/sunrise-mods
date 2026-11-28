@@ -1,0 +1,20 @@
+version = "1.0.3"
+kind = "native-mod"
+tag = "v1.0.3"
+published = "2026-11-28T02:26:36Z"
+sunrise = "dev-2026-11-26-ba1f24e"
+workflow = "sunrise-org/sunrise-mods/.github/workflows/release.yml@refs/tags/release-v1"
+repository = 1464968402
+dependencies = []
+
+[file]
+url = "https://github.com/Zekrenlight/statistics-plus/releases/download/v1.0.3/statsplus-1.0.3.smod"
+size = 67911
+sha256 = "8ac1b9d70504cd415095d7f2abc8b328b16fa92cc0dea5d50ffc2827d1ef9041"
+attestation = "https://github.com/Zekrenlight/statistics-plus/releases/download/v1.0.3/statsplus-1.0.3.smod.sigstore.json"
+
+[page]
+url = "https://github.com/Zekrenlight/statistics-plus/releases/download/v1.0.3/statsplus-1.0.3.page.tar"
+size = 129536
+sha256 = "cca84df93e1c79789fd48dfde2fab81bbde694210ce4dd3f48844a423976bece"
+attestation = "https://github.com/Zekrenlight/statistics-plus/releases/download/v1.0.3/statsplus-1.0.3.page.tar.sigstore.json"
