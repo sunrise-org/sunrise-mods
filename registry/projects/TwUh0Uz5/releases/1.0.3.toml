@@ -1,0 +1,20 @@
+version = "1.0.3"
+kind = "native-mod"
+tag = "v1.0.3"
+published = "2026-11-28T02:28:13Z"
+sunrise = "dev-2026-11-26-ba1f24e"
+workflow = "sunrise-org/sunrise-mods/.github/workflows/release.yml@refs/tags/release-v1"
+repository = 1464968653
+dependencies = []
+
+[file]
+url = "https://github.com/Zekrenlight/sunnymods/releases/download/v1.0.3/sunnymods-1.0.3.smod"
+size = 46615
+sha256 = "41c1ab6024d090565625b48063cb906947f5862eda8fcad1c6c39d0f51faa270"
+attestation = "https://github.com/Zekrenlight/sunnymods/releases/download/v1.0.3/sunnymods-1.0.3.smod.sigstore.json"
+
+[page]
+url = "https://github.com/Zekrenlight/sunnymods/releases/download/v1.0.3/sunnymods-1.0.3.page.tar"
+size = 303104
+sha256 = "37d12a3c65d74618027acabb60c8f8a36d6fb8368f038d4f3dc4eceb740c7149"
+attestation = "https://github.com/Zekrenlight/sunnymods/releases/download/v1.0.3/sunnymods-1.0.3.page.tar.sigstore.json"
