@@ -1,0 +1,20 @@
+version = "1.0.1"
+kind = "native-mod"
+tag = "sunrise_creative_editor/v1.0.1"
+published = "2026-11-28T11:11:52Z"
+sunrise = "dev-2026-11-26-ba1f24e"
+workflow = "sunrise-org/sunrise-mods/.github/workflows/release.yml@refs/tags/release-v1"
+repository = 1475463116
+dependencies = []
+
+[file]
+url = "https://github.com/rewenx/sunrise-creative-editor/releases/download/sunrise_creative_editor/v1.0.1/sunrise_creative_editor-1.0.1.smod"
+size = 216350
+sha256 = "612b59716eecb88c6d469a254b9138723b1feb29e60d3caf368e255fd93949ad"
+attestation = "https://github.com/rewenx/sunrise-creative-editor/releases/download/sunrise_creative_editor/v1.0.1/sunrise_creative_editor-1.0.1.smod.sigstore.json"
+
+[page]
+url = "https://github.com/rewenx/sunrise-creative-editor/releases/download/sunrise_creative_editor/v1.0.1/sunrise_creative_editor-1.0.1.page.tar"
+size = 3366400
+sha256 = "82dbbd357d64d999af53fe8c329105de211d79c87aeec00c3336a624f651e417"
+attestation = "https://github.com/rewenx/sunrise-creative-editor/releases/download/sunrise_creative_editor/v1.0.1/sunrise_creative_editor-1.0.1.page.tar.sigstore.json"

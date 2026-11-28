@@ -15,6 +15,30 @@ icon = "icon.png"
 categories = []
 
 [[screenshots]]
+path = "06-rainbow-arch.png"
+caption = "A seven-band rainbow arch made in-game with SCE's Cylinder primitive and Fill tool."
+
+[[screenshots]]
+path = "01-primitives-torus.png"
+caption = "Set a torus to 27 × 5 × 27 and choose Smooth Quartz in the Primitives tab."
+
+[[screenshots]]
+path = "02-torus-placement-preview.png"
+caption = "Rotate the torus upright and preview its placement with the Orb of Creation."
+
+[[screenshots]]
+path = "03-torus-smooth-quartz.png"
+caption = "Before the gradient. The upright torus in Smooth Quartz."
+
+[[screenshots]]
+path = "05-torus-rainbow-concrete.png"
+caption = "After the gradient. The same torus and camera angle with Rainbow Concrete applied."
+
+[[screenshots]]
+path = "04-fill-rainbow-gradient.png"
+caption = "Set the Rainbow Concrete gradient to run downward with Randomness 1 for straight bands."
+
+[[screenshots]]
 path = "fill-gradient.png"
 caption = "Fill shows the selected replacement blocks and previews the gradient."
 
